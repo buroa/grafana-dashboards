@@ -83,7 +83,7 @@
       }
     ]
   },
-  "description": "The client side of Envoy Gateway: connections by protocol, requests in flight and what fails. Collapsed rows hold lifetime, closes, TLS, local replies, buffers, compression, HTTP/3 and limits.",
+  "description": "The client side of Envoy Gateway: connections by protocol, requests in flight, cancellations, timeouts, TLS and compression.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,

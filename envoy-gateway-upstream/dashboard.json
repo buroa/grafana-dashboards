@@ -98,7 +98,7 @@
       }
     ]
   },
-  "description": "The backend side of Envoy Gateway, per route: response time, failures, endpoint health and connections. Collapsed rows hold per-route traffic and status codes, retries, reuse, closes and buffering.",
+  "description": "The backend side of Envoy Gateway, per route: response time, failures, endpoint health, retries and connection reuse.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
