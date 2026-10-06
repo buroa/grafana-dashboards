@@ -7,6 +7,7 @@ Grafana dashboards for a home lab, published on [grafana.com](https://grafana.co
 | Dashboard | grafana.com | Data source |
 | --- | --- | --- |
 | [APC UPS / Overview](apc-ups) | [25867](https://grafana.com/grafana/dashboards/25867) | `snmp_exporter` with the `apcups` module |
+| [autobrr / Overview](autobrr) | [25872](https://grafana.com/grafana/dashboards/25872) | [autobrr](https://github.com/autobrr/autobrr) metrics |
 | [brrpolice / Overview](brrpolice) | [25155](https://grafana.com/grafana/dashboards/25155) | [brrpolice](https://github.com/zariel/brrpolice) metrics |
 | [cloudflared / Overview](cloudflared) | [25868](https://grafana.com/grafana/dashboards/25868) | cloudflared `--metrics` endpoint |
 | [Envoy Gateway / Overview](envoy-gateway-overview) | [25869](https://grafana.com/grafana/dashboards/25869) | Envoy proxy metrics, cAdvisor |
@@ -47,4 +48,6 @@ Every dashboard follows the same layout so they read alike:
 - **Open rows** show what you need day to day; **collapsed rows** (`<Topic> · <details>`) hold what you only need when something looks off.
 - **Severity colors** run green → yellow → red.
 - **Panel descriptions** are short and self-contained; they never refer to other panels by position.
-- **Defaults** are the last 24 hours with a 1 minute refresh (ZFS: 6 hours, 30 seconds).
+- **Defaults** are the last 24 hours with a 1 minute refresh.
+
+The full house standards are in [AGENTS.md](AGENTS.md).

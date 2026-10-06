@@ -1,133 +1,117 @@
 # AGENTS.md
 
-House standards for the dashboards in this repo. Every dashboard follows them; a change that breaks one needs a reason.
+House standards for the dashboards in this repo. A change that breaks one needs a reason.
 
-## Layout
+## Layout and publishing
 
 ```
 <dashboard>/
-  dashboard.json     # exported dashboard, what grafana.com serves; gnetId = its grafana.com ID
-  .lint              # dashboard-linter exclusions, each with a reason
-  README.md          # grafana.com description + screenshots
-  1-overview.png     # visible rows
+  dashboard.json     # what grafana.com serves; gnetId = its grafana.com ID
+  AGENTS.md          # verified metric traps for this dashboard (only if needed)
+  .lint              # dashboard-linter exclusions, each with a reason (only if needed)
+  README.md          # grafana.com description + screenshots; follow cloudflared/README.md
+  1-overview.png     # visible rows, collapsed rows closed
   N-<row-slug>.png   # one per collapsed row, expanded, in row order
 ```
 
-The root `README.md` has the index table (title, grafana.com ID, data source). Keep it in sync when adding a dashboard.
+- Keep the root `README.md` index (title, grafana.com ID, data source) in sync.
+- Never change `uid` or `gnetId`; revisions and imports depend on them.
+- `dashboard.json` is `json.dumps(d, indent=2)` output: 2-space indent, non-ASCII escaped (`\u00b7` for `·`). Edit by loading and re-dumping, keeping the file's trailing newline or lack of one, so diffs stay surgical.
+- A new dashboard is created once by hand on grafana.com; then set its `gnetId` here.
+- Pull requests run **Lint** (`dashboard-linter lint --strict`). On merge, **Release** uploads each changed JSON as a new revision; agents never upload by hand. Renovate in `buroa/home-ops` bumps `revisions/<n>`.
+- Commits are scoped to the dashboard folder or family: `fix(envoy-gateway): …`.
 
-## Publishing
+## Design
 
-1. Edit the JSON. Keep `uid` and `gnetId` unchanged; grafana.com revisions and imports depend on them.
-2. Verify (see below) and retake any screenshot whose row changed.
-3. Open a pull request. The **Lint** workflow runs `dashboard-linter lint --strict` on every changed dashboard.
-4. On merge to `main`, the **Release** workflow lints again and uploads each changed JSON to grafana.com as a new revision of its `gnetId`. Agents never upload by hand.
-5. Renovate in `buroa/home-ops` bumps `revisions/<n>` in the `GrafanaDashboard` URL.
+A top-down story of plain questions. Accurate but busy charts get rejected.
 
-A new dashboard is created once by hand on grafana.com; then set its `gnetId` here.
-
-## Design principles
-
-The dashboard is a top-down story of plain questions. Accurate but busy charts get rejected.
-
-- **Performance first.** Lead with what tells you whether the thing is healthy and fast.
-- **Visible = needed + useful.** Everything moot goes into a collapsed row: flat lines, constants, usually-zero or always-empty panels, static facts, tuning internals, drill-down-only views, per-entity detail.
-- **No duplicates**, within a dashboard or across the Envoy Gateway trio. A tile plus its time chart is fine; two charts of one measure, or two identical titles, are not.
-- **One question per panel.** Within a row, the left panel answers the primary question; the right one gives attribution or context.
-- **Works for anyone's setup.** Never reference another product, dashboard, host or cluster. Per-entity views must scale to 100 routes or 50 trackers: ranked top-10 bar gauges, plain tables, a drill-down variable. No by-name palettes.
+- **Performance first.** Lead with whether it's healthy and fast.
+- **Visible only if someone checks it on a normal day.** Collapse the rest: flat lines, constants, usually-zero or empty panels, static facts, internals, drill-downs, per-entity detail.
+- **No duplicates** within a dashboard or across the Envoy Gateway trio. A tile plus its time chart is fine; two charts of one measure or two identical titles are not.
+- **One question per panel.** Visible rows usually pair the primary question (left) with attribution or context (right).
+- **Works for anyone's setup.** No references to other products, dashboards, hosts or clusters. Per-entity views scale to 100 routes or 50 trackers (top-10 bar gauges, plain tables, a drill-down variable); no by-name palettes.
 
 ## Structure
 
-- **Dashboard title:** `<App> / <Page>`; single-page dashboards use `Overview`.
-- **Top row:** six 4-wide stat tiles (title 13, value 30) that answer "is it healthy?". Tiles are colored by value, no background blocks.
-- **Visible rows** are bare topic nouns (`Traffic`, `Cache`, `Disks`), ordered: is it healthy → what is it doing → why → cost/internals.
-- **Collapsed rows** are `<Topic> · a, b & c`, reuse a visible topic noun where one fits, and are ordered by how likely someone opens them, mirroring the visible order.
-- **Variable bar** stays on one line. Hide job/instance-style variables; drop a dashboard link if it wraps the bar.
-- **Defaults:** last 24 hours, 1 minute refresh, `editable: false`, `graphTooltip: 1`, a single `DS_PROMETHEUS` input.
+- **Title:** `<App> / <Page>`; single-page dashboards use `Overview`.
+- **Top row:** six 4-wide stat tiles answering "is it healthy?", colored by value, no background blocks. Apps with a state lead with an uppercase status word (ONLINE, CONNECTED, LIVE).
+- **Visible rows:** bare topic nouns (`Traffic`, `Cache`, `Disks`), ordered: is it healthy → what is it doing → why → cost/internals.
+- **Collapsed rows:** `<Topic> · a, b & c`, reusing a visible topic noun where one fits. The details name the panels inside, each idea once; rename the row when its panels change. Order by how likely someone opens them, mirroring the visible order.
+- **Variable bar:** one line. Hide scrape plumbing (`job`, `instance` used only for scoping); entity selectors (host, gateway, route, tracker) stay visible. Drop a dashboard link if it wraps.
+- **Defaults:** last 24 hours, 1 minute refresh, `editable: false`, `graphTooltip: 1`, one `DS_PROMETHEUS` input.
 
-## Titles
+## Titles and descriptions
 
 - Sentence case, plain words, no units, no trailing punctuation. Panels use "and"; row titles keep "&".
-- Breakdowns: `<measure> by <dimension>` ("Throughput by disk"), never "per disk".
-- Bucketed counts: `<measure> per hour` / `per day`, never "Daily X", "Hourly X", "X history" or "X now".
-- Rates: a standard noun (`Throughput`, `IOPS`) or `<measure> per second`.
-- Tiles: one to three words, a noun phrase.
-- The same measure has the same wording on every dashboard (`CPU`, `Memory`, `Throughput`).
-
-## Descriptions
-
-- At most about 20 words, plain language.
-- Self-contained: never reference another panel, row or dashboard, by title or by position ("above", "see Memory"). That rots the moment something moves. Re-audit all descriptions after any move or removal.
-- Range-based tiles say "in the selected range".
+- Breakdowns: `<measure> by <dimension>`, never "per disk". Buckets: `<measure> per hour` / `per day`, never "Daily X", "X history" or "X now". Rates: a standard noun (`Throughput`, `IOPS`) or `<measure> per second`. Tiles: one to three words.
+- One measure, one wording on every dashboard (`CPU`, `Memory`, `Throughput`).
+- Descriptions: at most about 20 plain words, self-contained; never name another panel, row or dashboard, or point by position ("above"). Range-based tiles say "in the selected range".
+- After any move or removal, re-audit every description and row title.
 
 ## Color
 
-One meaning per hue, dashboard-wide and across dashboards:
+One meaning per hue, on every dashboard:
 
 | Hue | Meaning |
 | --- | --- |
+| Text (default) | counts, ratios and facts with no direction or severity |
 | Blue | served, read, download |
 | Orange | received, write, upload, input |
 | Purple | memory, ARC (MFU dark, MRU light) |
 | Teal `#4fb3bf` | CPU (ZFS: L2ARC; APC: battery) |
-| Gray `#8a8a8a` | neutral, limits (dashed), misses |
+| Gray `#8a8a8a` | neutral series, limits (dashed), misses, empty-state text |
 | Light gray `#c4c4c4` | secondary neutral |
-| Green → yellow → red (dark red worst) | severity only |
+| Green → yellow → red (dark red worst) | severity and status only |
 
-- Orange is never a warning color.
-- Status colors only on status.
+- Orange is never a warning; a neutral count is never green.
 - Shades of one hue only where the order is real (protocol versions, latency bands).
-- Per-entity panels (disks, pods, replicas) use one flat color per direction.
-- The same series has the same color in every panel.
+- Per-entity panels use one flat color per direction; a series keeps its color in every panel.
 
 ## Panels
 
-- **Forms:** hourly or daily bars for counts; 100%-stacked zone charts for shares; ranked bar gauges for who/what; tables for multi-attribute comparisons. Linear axes only.
-- **Read/write pairs** go in one mirrored panel: write/upload below zero on the same axis.
-- **Fills:** lines 0, single areas 15% gradient, stacked 50%, bars 85%. `lineWidth` 1. Filled areas `softMin` 0.
-- **Stacked severity bands:** non-success bands get `lineWidth` 0, or the stacked outline turns red.
-- **Legends:** lists at the bottom, never legend tables. Per-hour bars show a total (mean for percentages). One-line-per-entity panels get no legend; the tooltip names the line.
+- **Forms:** hourly or daily bars for counts; 100%-stacked zone charts for shares; top-10 ranked bar gauges for who/what; tables for multi-attribute comparisons; status-history grids only for bounded entities (trackers, disks, IRC networks), never Envoy routes. Linear axes only.
+- **Read/write pairs:** one mirrored panel; what the app sends out (reads, responses, a torrent client's upload) above zero, what it takes in below.
+- **Fills:** lines 0, single areas 15% gradient, stacked 50%, bars 85%; `lineWidth` 1; filled areas `softMin` 0. Stacked non-success bands get `lineWidth` 0, or the outline turns red.
+- **Legends:** lists at the bottom, never tables. Per-hour bars show a total (mean for percentages). One-line-per-entity panels get none.
 - **Tooltips:** multi, sorted descending.
-- **Bar gauges:** basic display, value text 18; cap leaderboards at top 10.
+- **Usually-empty panels:** filter with `> 0`; `noValue` states the all-clear ("No errors", "All healthy").
 - **Annotations:** toggles hidden, filtered to the panels they matter for.
 
-**Never:**
-- sparkline or trend columns in tables (tried and rejected)
-- log axes
-- percentiles of bimodal data
-- short-window ratio lines
-- big fonts on trivial values
+**Never:** sparkline or trend columns in tables, log axes, percentiles of bimodal data, short-window ratio lines, big fonts on trivial values.
 
-Existing per-entity status-history grids (qBittorrent per tracker, ZFS per disk) are liked and stay. Don't add new ones where the entity count can explode (Envoy routes).
+## Exemplars
+
+Start from these panels instead of from scratch; they carry the house sizes and options.
+
+| Need | Copy |
+| --- | --- |
+| Status tile | cloudflared · Tunnel |
+| Count, rate and byte tiles | cloudflared top row |
+| Hourly stacked bars | cloudflared · Requests per hour |
+| Mirrored read/write | zfs · Client throughput |
+| Per-day context | qbittorrent · Transfer per day |
+| Top-10 ranked bars with drill-down | envoy-gateway-overview · Errors by route |
+| Per-entity grid | qbittorrent · Upload by tracker per hour |
+| Key/value facts | apc-ups · Battery record |
+| Stats in a collapsed row | qbittorrent · Library |
+| Usually-empty panel | brrpolice · Errors per hour |
 
 ## Verification
 
-Before calling a change done:
-
-- **Queries:** run every query against a real Prometheus for each variable value; zero errors. Empty results only where by design. 7-day ranges should stay fast (under ~3 s).
-- **Lint:** [`grafana/dashboard-linter`](https://github.com/grafana/dashboard-linter) with `--strict` must pass. Accepted exceptions live in each folder's `.lint` with a reason; keep them as narrow as the rule allows and never add one to silence a real finding.
-- **Look at it:** import into a local Grafana, expand every collapsed row, screenshot the full page, and critique it as a reader would: nothing clipped, nothing confusing.
-- **Screenshots:** before committing, blur anything private: tracker names, torrent names, personal data. Hostnames and bandwidth figures are fine.
+- **Lint:** `dashboard-linter lint --strict dashboard.json` passes. `.lint` exclusions are as narrow as the rule allows and never silence a real finding.
+- **Queries:** run each one against the Prometheus in `$PROMETHEUS_URL` (ask if unset) for every variable value: no errors, empty only by design, 7-day ranges under ~3 s.
+- **Look at it:** import into a local Grafana 13, expand every collapsed row and critique it as a reader: nothing clipped, nothing confusing.
+- **Screenshots:** 1600 px wide, kiosk, dark; crop each collapsed row from its title to its last panel. Replace private names (trackers, torrents, personal data) with uniform gray pills; hostnames and bandwidth figures are fine.
 
 ## Metric traps
 
-These are verified; don't relearn them.
+Verified; don't relearn them. Dashboard-specific traps live in that folder's `AGENTS.md`; note the exporter version a new one was verified on.
 
-- **Lazily created counters** (Envoy per-code `envoy_cluster_upstream_rq{envoy_response_code}`, `upstream_rq_xx`; cloudflared `response_by_code`) appear already above zero, so `increase()` drops the first event. Use `increase(x[R]) or (min_over_time(x[R]) unless x offset R)`. Envoy's downstream HCM `rq_xx` counters are pre-created and safe.
-- **Envoy `upstream_rq_time`** runs from request complete to response complete, so streaming routes include transfer time and the tail is bimodal.
-- **Envoy compressor `header_not_valid`** means the client's `Accept-Encoding` lists nothing Envoy offers.
-- **Envoy `connect_timeout`** is a subset of `connect_fail`.
 - **Prometheus 3 normalizes `le`** to `100.0`: match with `le=~"100(\\.0)?"`.
 - **"Metric might not be a counter"** shows on `rate()` of any counter without a `_total` suffix. Harmless.
-- **cloudflared:**
-  - `request_errors` are mostly visitors cancelling, not origin faults.
-  - `response_by_code` counts only after the full body is copied and never counts 101 upgrades.
-  - `quic_client_*` exists only with QUIC transport.
-  - `tunnel_register_fail` doesn't exist; use `rpc_client_failures`.
-- **APC (snmp_exporter):** series split across exporter restarts; always aggregate with `max by (instance)`.
-- **qui tracker byte metrics are gauges.** `rate()` spikes on torrent removal, so cap per-minute increments by the session counter.
-- **ZFS:** the ZIL on a special vdev is counted as "normal" in kstats, so SLOG counters at zero don't mean there is no SLOG.
 
-**Grafana 13 quirks:**
+## Grafana 13 quirks
+
 - A single-series bar gauge hides its name unless `displayName` is set.
 - A state timeline with no data errors with "Data does not have a time field"; fall back with `or on() label_replace(vector(1), ...)`.
 - The transpose transformation turns a leading string field into the header.

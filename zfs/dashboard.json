@@ -8639,7 +8639,7 @@
       "title": "Memory \u00b7 ARC contents & overhead"
     }
   ],
-  "refresh": "30s",
+  "refresh": "1m",
   "schemaVersion": 42,
   "tags": [
     "zfs",
@@ -8791,7 +8791,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},

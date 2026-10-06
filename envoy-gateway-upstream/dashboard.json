@@ -1161,15 +1161,18 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "red"
+            "mode": "thresholds"
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "#8a8a8a",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
               }
             ]
           },
@@ -2966,15 +2969,18 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "fixed",
-                "fixedColor": "yellow"
+                "mode": "thresholds"
               },
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "yellow",
+                    "color": "#8a8a8a",
                     "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0
                   }
                 ]
               },

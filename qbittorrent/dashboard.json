@@ -145,17 +145,17 @@
                 "0": {
                   "color": "red",
                   "index": 0,
-                  "text": "Disconnected"
+                  "text": "DISCONNECTED"
                 },
                 "1": {
                   "color": "green",
                   "index": 1,
-                  "text": "Connected"
+                  "text": "CONNECTED"
                 }
               }
             }
           ],
-          "noValue": "No data"
+          "noValue": "NO DATA"
         },
         "overrides": []
       },
