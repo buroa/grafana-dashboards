@@ -1,0 +1,67 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "*/dashboard.json"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Release - Lint
+    uses: ./.github/workflows/lint.yaml
+
+  filter:
+    needs: lint
+    name: Release - Filter
+    runs-on: ubuntu-latest
+    outputs:
+      changed-dashboards: ${{ steps.changed-dashboards.outputs.changed_files }}
+    steps:
+      - name: Get Changed Dashboards
+        id: changed-dashboards
+        uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
+        with:
+          patterns: "*/dashboard.json"
+
+  release:
+    if: ${{ needs.filter.outputs.changed-dashboards != '[]' }}
+    needs: filter
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dashboard: ${{ fromJSON(needs.filter.outputs.changed-dashboards) }}
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Get Dashboard ID
+        id: dashboard
+        env:
+          DASHBOARD: ${{ matrix.dashboard }}
+        run: echo "id=$(jq --raw-output .gnetId "$DASHBOARD")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Revision
+        env:
+          DASHBOARD: ${{ matrix.dashboard }}
+          DASHBOARD_ID: ${{ steps.dashboard.outputs.id }}
+          GRAFANA_COM_TOKEN: ${{ secrets.GRAFANA_COM_TOKEN }}
+        run: |-
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $GRAFANA_COM_TOKEN" \
+            --form "json=@$DASHBOARD;type=application/json" \
+            "https://grafana.com/api/dashboards/$DASHBOARD_ID/revisions"

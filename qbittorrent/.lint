@@ -1,0 +1,10 @@
+---
+exclusions:
+  template-job-rule:
+    reason: qBittorrent instances are selected by the instance_name variable; job and instance belong to qui.
+  template-instance-rule:
+    reason: qBittorrent instances are selected by the instance_name variable; job and instance belong to qui.
+  target-job-rule:
+    reason: qBittorrent instances are selected by the instance_name variable; job and instance belong to qui.
+  target-instance-rule:
+    reason: qBittorrent instances are selected by the instance_name variable; job and instance belong to qui.

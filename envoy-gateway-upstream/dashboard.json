@@ -1,0 +1,4114 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "13.1.3"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "state-timeline",
+      "name": "State timeline",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "#8a8a8a",
+        "name": "Envoy restart",
+        "expr": "envoy_server_uptime{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"} < 60",
+        "step": "1m",
+        "titleFormat": "Envoy {{pod}} started",
+        "textFormat": "",
+        "useValueForTime": false,
+        "filter": {
+          "exclude": false,
+          "ids": [
+            9,
+            12,
+            18,
+            19,
+            7,
+            8,
+            11,
+            14
+          ]
+        }
+      }
+    ]
+  },
+  "description": "The backend side of Envoy Gateway, per route: response time, failures, endpoint health and connections. Collapsed rows hold per-route traffic and status codes, retries, reuse, closes and buffering.",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "envoy-gateway"
+      ],
+      "targetBlank": false,
+      "title": "Envoy dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Routes down",
+      "description": "Routes with no healthy backend endpoint now. Their requests get a 503.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 1,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "count(max by (envoy_cluster_name) (envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}) == 0) or vector(0)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Typical response",
+      "description": "Median time for backends to finish a response in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 2,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5, sum by (le) (increase(envoy_cluster_upstream_rq_time_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range])))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms",
+          "mappings": [],
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Slowest route",
+      "description": "The route with the highest median response time (over 100 requests).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 3,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "topk(1, histogram_quantile(0.5, sum by (le, route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\"))) and on (route) (sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) > 100))",
+          "legendFormat": "{{route}}",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 22
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Backend failures",
+      "description": "Failed connects, timeouts and resets in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 4,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_cx_connect_fail{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range])) + sum(increase(envoy_cluster_upstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range])) + sum(increase(envoy_cluster_upstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Retried",
+      "description": "Requests Envoy re-sent after a failure.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 5,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_rq_retry{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Gave up",
+      "description": "Requests that ran out of retries, so the client got an error.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 6,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 20,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_rq_retry_limit_exceeded{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Response time",
+      "collapsed": false,
+      "id": 26,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 4
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Response time",
+      "description": "Hourly median backend response time for the selected routes; streams cannot skew it.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 9,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5, sum by (le) (increase(envoy_cluster_upstream_rq_time_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval])))",
+          "legendFormat": "Typical",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0
+          },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "interval": "1h"
+    },
+    {
+      "type": "table",
+      "title": "Response time by route",
+      "description": "Typical and slowest-5 % response time per route, with its share over 100 ms. Routes under 20 requests are hidden.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 10,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5, sum by (le, route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\"))) and on (route) (sum by (route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) > 20)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\"))) and on (route) (sum by (route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) > 20)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(1 - sum by (route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"100(\\\\.0)?\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / sum by (route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\"))) and on (route) (sum by (route, envoy_cluster_name) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_time_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) > 20)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "fieldMinMax": true,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Route"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show only ${__value.text}",
+                    "url": "/d/envoy-gateway-upstream?${__url_time_range}&${datasource:queryparam}&${gateway:queryparam}&var-route=${__data.fields.envoy_cluster_name}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "envoy_cluster_name"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Typical"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Slowest 5%"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Over 100 ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 170
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "route": 0,
+              "Value #A": 1,
+              "Value #B": 2,
+              "Value #C": 3,
+              "envoy_cluster_name": 4
+            },
+            "renameByName": {
+              "route": "Route",
+              "Value #A": "Typical",
+              "Value #B": "Slowest 5%",
+              "Value #C": "Over 100 ms"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Typical",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Failures",
+      "collapsed": false,
+      "id": 27,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 13
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Backend failures per hour",
+      "description": "Couldn't connect: refused or timed out. Timed out: no answer in time. Reset: broken mid-request. Overflow: circuit breaker.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 12,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_cx_connect_fail{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+          "legendFormat": "Couldn't connect",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval])) + sum(increase(envoy_cluster_upstream_rq_per_try_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+          "legendFormat": "Timed out",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval])) + sum(increase(envoy_cluster_upstream_cx_protocol_error{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+          "legendFormat": "Reset",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_cluster_upstream_rq_pending_overflow{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval])) + sum(increase(envoy_cluster_upstream_cx_overflow{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval])) + sum(increase(envoy_cluster_upstream_rq_retry_overflow{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+          "legendFormat": "Overflow",
+          "range": true,
+          "instant": false,
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "bars",
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Couldn't connect"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Timed out"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reset"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Overflow"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "interval": "1h"
+    },
+    {
+      "type": "bargauge",
+      "title": "Backend failures by route",
+      "description": "Failed connects, timeouts and resets per route in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 13,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sort_desc(topk(10, (sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_cx_connect_fail{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) + sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) + sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\"))) > 0))",
+          "legendFormat": "{{route}}",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "min": 0,
+          "mappings": [],
+          "decimals": 0,
+          "displayName": "${__field.labels.route}",
+          "noValue": "No failures"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 24,
+        "minVizHeight": 24,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "valueMode": "color",
+        "text": {
+          "valueSize": 18
+        }
+      }
+    },
+    {
+      "type": "state-timeline",
+      "title": "Endpoint health by route",
+      "description": "Routes below half their healthy endpoints at some point; each slice shows its worst moment.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 17,
+      "gridPos": {
+        "w": 24,
+        "h": 4,
+        "x": 0,
+        "y": 22
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(min_over_time((min by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / max by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\") > 0))[$__interval:1m]) and on (route) bottomk(10, min_over_time((min by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / max by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\") > 0))[$__range:1m] @ end()) < 0.5)) or on () label_replace(vector(1), \"route\", \"All routes\", \"\", \"\")",
+          "legendFormat": "{{route}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "maxDataPoints": 400,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#8a8a8a"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8a8a8a",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": 1,
+                "to": 1000000000.0,
+                "result": {
+                  "text": "Healthy",
+                  "color": "#8a8a8a",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0.5,
+                "to": 0.9999,
+                "result": {
+                  "text": "Degraded",
+                  "color": "yellow",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0.0001,
+                "to": 0.4999,
+                "result": {
+                  "text": "Panic",
+                  "color": "red",
+                  "index": 2
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0,
+                "to": 0,
+                "result": {
+                  "text": "Down",
+                  "color": "dark-red",
+                  "index": 3
+                }
+              }
+            }
+          ],
+          "custom": {
+            "fillOpacity": 85,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "alignValue": "center",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": true,
+        "rowHeight": 0.7,
+        "showValue": "auto",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "interval": "1m"
+    },
+    {
+      "type": "row",
+      "title": "Connections",
+      "collapsed": false,
+      "id": 28,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 26
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Backend connections",
+      "description": "Connections open to backends, those carrying a request, and requests queued for one (should stay empty).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 18,
+      "gridPos": {
+        "w": 24,
+        "h": 8,
+        "x": 0,
+        "y": 27
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_cluster_upstream_cx_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"})",
+          "legendFormat": "Open",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_cluster_upstream_rq_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"})",
+          "legendFormat": "In use",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_cluster_upstream_rq_pending_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"})",
+          "legendFormat": "Waiting",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Open"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "In use"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Waiting"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "bars"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 85
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Routes \u00b7 traffic & status codes",
+      "collapsed": true,
+      "id": 29,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 35
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Requests per second by route",
+          "description": "Requests per second for the ten busiest selected routes, one line each.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 7,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 36
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum by (route) (label_replace(label_replace(label_replace(rate(envoy_cluster_upstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__rate_interval]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) and on (route) topk(10, sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range] @ end()), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")))",
+              "legendFormat": "{{route}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "reqps",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Throughput by route",
+          "description": "Bytes per second from backends for the ten busiest selected routes, one line each.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 8,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 36
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum by (route) (label_replace(label_replace(label_replace(rate(envoy_cluster_upstream_cx_rx_bytes_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__rate_interval]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) and on (route) topk(10, sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_cx_rx_bytes_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range] @ end()), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")))",
+              "legendFormat": "{{route}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "binBps",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Status codes per hour",
+          "description": "Responses per status code for the selected routes, including Envoy's own replies like 503 when no backend is up.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 11,
+          "gridPos": {
+            "w": 24,
+            "h": 10,
+            "x": 0,
+            "y": 44
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum by (envoy_response_code) ((increase(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]) * 0))) + sum by (envoy_response_code) (((min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]) unless envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"} offset $__interval) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]) * 0)))) > 0",
+              "legendFormat": "{{envoy_response_code}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^1..( .+)?$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^2..( .+)?$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C0D8FF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^3..( .+)?$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^4..( .+)?$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^5..( .+)?$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "100"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "100 Continue"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "101"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "101 Switching protocols"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "200"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "200 OK"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "201"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C0D8FF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "201 Created"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "202"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C0D8FF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "202 Accepted"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "204"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8AB8FF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "204 No content"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "206"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#1F60C4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "206 Partial content"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "207"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C0D8FF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "207 Multi-status"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "301"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "301 Moved permanently"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "302"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "302 Found"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "303"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "303 See other"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "304"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "304 Not modified"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "307"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "307 Temporary redirect"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "308"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "308 Permanent redirect"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "400"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "400 Bad request"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "401"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "semi-dark-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "401 Unauthorized"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "403"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "403 Forbidden"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "404"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "404 Not found"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "405"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "405 Method not allowed"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "406"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "406 Not acceptable"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "408"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "408 Request timeout"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "409"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "409 Conflict"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "410"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "410 Gone"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "411"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "411 Length required"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "412"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "412 Precondition failed"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "413"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "413 Content too large"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "414"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "414 URI too long"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "415"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "415 Unsupported media type"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "416"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "416 Range not satisfiable"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "421"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "421 Misdirected request"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "422"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "422 Unprocessable content"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "425"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "425 Too early"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "426"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "426 Upgrade required"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "428"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "428 Precondition required"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "429"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "429 Too many requests"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "431"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "431 Headers too large"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "451"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "451 Unavailable for legal reasons"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "500"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "500 Internal server error"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "501"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "501 Not implemented"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "502"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "semi-dark-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "502 Bad gateway"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "503"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "503 Service unavailable"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "504"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "504 Gateway timeout"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "505"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "505 HTTP version not supported"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "507"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "507 Insufficient storage"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Failures \u00b7 retries, panic routing & endpoint changes",
+      "collapsed": true,
+      "id": 30,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 36
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Retries per hour",
+          "description": "Retried: re-sent. Recovered: a retry succeeded. Gave up: out of retries.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 14,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 0,
+            "y": 37
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_rq_retry{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Retried",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_rq_retry_success{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Recovered",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_rq_retry_limit_exceeded{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Gave up",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Retried"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Recovered"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Gave up"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "bargauge",
+          "title": "Panic routing by route",
+          "description": "Requests sent while too few endpoints were healthy, so Envoy used every endpoint, healthy or not.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 15,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 8,
+            "y": 37
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sort_desc(topk(10, sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_lb_healthy_panic{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) > 0))",
+              "legendFormat": "{{route}}",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "yellow"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "yellow",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short",
+              "min": 0,
+              "mappings": [],
+              "decimals": 0,
+              "displayName": "${__field.labels.route}",
+              "noValue": "No panic routing"
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 24,
+            "minVizHeight": 24,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "manual",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Endpoint changes per hour",
+          "description": "Backend endpoints added or removed, usually by rollouts or restarts.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 16,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 16,
+            "y": 37
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_membership_change{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Changes",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8a8a8a"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Connections \u00b7 reuse, closes & setup",
+      "collapsed": true,
+      "id": 31,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 37
+      },
+      "panels": [
+        {
+          "type": "bargauge",
+          "title": "Requests per connection by route",
+          "description": "Top 10 routes by requests per backend connection. Routes polled faster than the idle timeout reuse well.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 20,
+          "gridPos": {
+            "w": 12,
+            "h": 11,
+            "x": 0,
+            "y": 38
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sort_desc(topk(10, sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / sum by (route) (label_replace(label_replace(label_replace(increase(envoy_cluster_upstream_cx_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]), \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\"))))",
+              "legendFormat": "{{route}}",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short",
+              "min": 0,
+              "mappings": [],
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 24,
+            "minVizHeight": 24,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "manual",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Backend connection closes per hour",
+          "description": "Idle: Envoy closed an unused connection. Client left: dropped mid-request. Closed by backend: it hung up first, WebSockets included.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 19,
+          "gridPos": {
+            "w": 12,
+            "h": 11,
+            "x": 12,
+            "y": 38
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_cx_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Idle",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_cx_destroy_local_with_active_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Client left",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_cx_destroy_remote{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Closed by backend",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Idle"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Client left"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Closed by backend"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "timeseries",
+          "title": "Connect time",
+          "description": "Time to open a backend connection: typical and slowest 1 %.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 22,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 0,
+            "y": 49
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "histogram_quantile(0.5, sum by (le) (rate(envoy_cluster_upstream_cx_connect_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__rate_interval])))",
+              "legendFormat": "Typical",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "histogram_quantile(0.99, sum by (le) (rate(envoy_cluster_upstream_cx_connect_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__rate_interval])))",
+              "legendFormat": "Slowest 1%",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "ms",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Typical"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Slowest 1%"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "bargauge",
+          "title": "Backend connection lifetime",
+          "description": "How long closed backend connections stayed open. Lives near the idle timeout mean polling just misses reuse.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 21,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 8,
+            "y": 49
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"1000(\\\\.0)?\"}[$__range])) / sum(increase(envoy_cluster_upstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+              "legendFormat": "Under 1 s",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"10000(\\\\.0)?\"}[$__range])) - sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"1000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_cluster_upstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+              "legendFormat": "1 to 10 s",
+              "range": false,
+              "instant": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"60000(\\\\.0)?\"}[$__range])) - sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"10000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_cluster_upstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+              "legendFormat": "10 s to 1 min",
+              "range": false,
+              "instant": true,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"600000(\\\\.0)?\"}[$__range])) - sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"60000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_cluster_upstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+              "legendFormat": "1 to 10 min",
+              "range": false,
+              "instant": true,
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_cluster_upstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range])) - sum(increase(envoy_cluster_upstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\",le=~\"600000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_cluster_upstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__range]))",
+              "legendFormat": "Over 10 min",
+              "range": false,
+              "instant": true,
+              "refId": "E"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "percentunit",
+              "min": 0,
+              "mappings": [],
+              "max": 1,
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Queued requests per hour",
+          "description": "Requests that waited for a new backend connection, and those cancelled or failed while waiting.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 23,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 16,
+            "y": 49
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_rq_pending_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Waited",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_rq_cancelled{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Cancelled while waiting",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_cluster_upstream_rq_pending_failure_eject{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval]))",
+              "legendFormat": "Failed while waiting",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Waited"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Cancelled while waiting"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Failed while waiting"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Connections \u00b7 buffers & flow control",
+      "collapsed": true,
+      "id": 32,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 38
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Bytes buffered from backends",
+          "description": "Response bytes held because the client reads slower than the backend sends.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 24,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 39
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(envoy_cluster_upstream_cx_rx_bytes_buffered{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"})",
+              "legendFormat": "Buffered",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Backend read pauses per second",
+          "description": "Times per second Envoy paused a backend because the client side was full. Chatty but harmless while streams play smoothly.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 25,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 39
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(envoy_cluster_upstream_flow_control_paused_reading_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__rate_interval]))",
+              "legendFormat": "Paused",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8a8a8a"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "ops",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "envoy",
+    "envoy-gateway",
+    "gateway-api",
+    "performance"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "${DS_PROMETHEUS}",
+          "value": "${DS_PROMETHEUS}"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(envoy_server_uptime, pod)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Gateway",
+        "multi": true,
+        "name": "gateway",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(envoy_server_uptime, pod)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/^(.+)-[a-z0-9]+-[a-z0-9]+$/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(envoy_cluster_upstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\"}, envoy_cluster_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Route",
+        "multi": true,
+        "name": "route",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(envoy_cluster_upstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\"}, envoy_cluster_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/^(?<value>[a-z]+route\\/[^\\/]+\\/(?<text>[^\\/]+\\/rule\\/[0-9]+))$/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "allValue": ".+"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Envoy Gateway / Upstream",
+  "uid": "envoy-gateway-upstream",
+  "version": 1,
+  "weekStart": "",
+  "gnetId": 25870
+}

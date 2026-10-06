@@ -1,0 +1,10 @@
+---
+exclusions:
+  template-job-rule:
+    reason: UPS units are selected by the ups variable; job names differ per setup.
+  template-instance-rule:
+    reason: UPS units are selected by the ups variable; job names differ per setup.
+  target-job-rule:
+    reason: UPS units are selected by the ups variable; job names differ per setup.
+  target-instance-rule:
+    reason: UPS units are selected by the ups variable; job names differ per setup.

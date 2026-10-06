@@ -1,0 +1,3051 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "13.1.3"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "#8a8a8a",
+        "name": "Envoy restart",
+        "expr": "envoy_server_uptime{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"} < 60",
+        "step": "1m",
+        "titleFormat": "Envoy {{pod}} started",
+        "textFormat": "",
+        "useValueForTime": false,
+        "filter": {
+          "exclude": false,
+          "ids": [
+            7,
+            8,
+            10,
+            11,
+            12
+          ]
+        }
+      }
+    ]
+  },
+  "description": "The client side of Envoy Gateway: connections by protocol, requests in flight and what fails. Collapsed rows hold lifetime, closes, TLS, local replies, buffers, compression, HTTP/3 and limits.",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "envoy-gateway"
+      ],
+      "targetBlank": false,
+      "title": "Envoy dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "New connections",
+      "description": "Client connections opened in the selected range; each one cost a handshake.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 1,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_cx_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Reuse",
+      "description": "Requests each client connection carried on average. Higher means fewer handshakes.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 2,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) / sum(increase(envoy_http_downstream_cx_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "suffix: req",
+          "mappings": [],
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "HTTP/2 and HTTP/3",
+      "description": "Requests that arrived over a multiplexed protocol.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 3,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(sum(increase(envoy_http_downstream_rq_http2_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_http3_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))) / sum(increase(envoy_http_downstream_rq_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit",
+          "mappings": [],
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Compression",
+      "description": "Bytes compression removed from compressible responses.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 4,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "1 - (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))) / (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_total_uncompressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_total_uncompressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_total_uncompressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Cancelled",
+      "description": "Requests clients abandoned mid-response: skipped segments, closed tabs. Normal in moderation.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 5,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Timed out",
+      "description": "Requests closed by a header, idle or duration timeout.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 6,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 20,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_header_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_max_duration_reached{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Connections",
+      "collapsed": false,
+      "id": 21,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 4
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Open connections by protocol",
+      "description": "Client connections open at each moment, by HTTP version.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 7,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_http_downstream_cx_http1_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "HTTP/1.1",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_http_downstream_cx_http2_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "HTTP/2",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_http_downstream_cx_http3_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "HTTP/3",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "line",
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP/1.1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C0D8FF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP/2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP/3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1F60C4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "New connections per hour",
+      "description": "Each new connection costs a TLS or QUIC handshake. HTTP/1.1 clients reconnect the most.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 8,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_cx_http1_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "HTTP/1.1",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_cx_http2_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "HTTP/2",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_cx_http3_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "HTTP/3",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "bars",
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP/1.1"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C0D8FF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP/2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP/3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1F60C4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "interval": "1h"
+    },
+    {
+      "type": "row",
+      "title": "Requests",
+      "collapsed": false,
+      "id": 22,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 13
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests in flight",
+      "description": "Requests open at each moment. WebSockets and streams stay open and set the floor.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 10,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_http_downstream_rq_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "In flight",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_http_downstream_cx_upgrades_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "WebSockets",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "In flight"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WebSockets"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8a8a8a",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Cancelled and failed requests per hour",
+      "description": "Cancelled: client left. Reset: stream cut, mostly by a backend or WebSocket close. Timeouts and protocol errors are real failures.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 11,
+      "gridPos": {
+        "w": 12,
+        "h": 8,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "Cancelled by client",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_tx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "Reset by Envoy",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_downstream_rq_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_downstream_rq_header_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_downstream_rq_max_duration_reached{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "Timed out",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_cx_protocol_error{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+          "legendFormat": "Protocol errors",
+          "range": true,
+          "instant": false,
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "bars",
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cancelled by client"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8a8a8a",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reset by Envoy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Timed out"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Protocol errors"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "interval": "1h"
+    },
+    {
+      "type": "row",
+      "title": "Connections \u00b7 lifetime, closes & TLS",
+      "collapsed": true,
+      "id": 23,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 22
+      },
+      "panels": [
+        {
+          "type": "bargauge",
+          "title": "Client connection lifetime",
+          "description": "How long closed client connections stayed open. Short lives mean clients reconnect instead of reusing.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 9,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 0,
+            "y": 23
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"1000(\\\\.0)?\"}[$__range])) / sum(increase(envoy_http_downstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+              "legendFormat": "Under 1 s",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"10000(\\\\.0)?\"}[$__range])) - sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"1000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_http_downstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+              "legendFormat": "1 to 10 s",
+              "range": false,
+              "instant": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"60000(\\\\.0)?\"}[$__range])) - sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"10000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_http_downstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+              "legendFormat": "10 s to 1 min",
+              "range": false,
+              "instant": true,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"600000(\\\\.0)?\"}[$__range])) - sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"60000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_http_downstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+              "legendFormat": "1 to 10 min",
+              "range": false,
+              "instant": true,
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_http_downstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) - sum(increase(envoy_http_downstream_cx_length_ms_bucket{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\",le=~\"600000(\\\\.0)?\"}[$__range]))) / sum(increase(envoy_http_downstream_cx_length_ms_count{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+              "legendFormat": "Over 10 min",
+              "range": false,
+              "instant": true,
+              "refId": "E"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "percentunit",
+              "min": 0,
+              "mappings": [],
+              "max": 1,
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Client connection closes per hour",
+          "description": "Closed by client is normal. Closed by Envoy: idle, drained or asked to close. Cut: closed with requests still open.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 13,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 8,
+            "y": 23
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_downstream_cx_destroy_remote{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "Closed by client",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_downstream_cx_destroy_local{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) - sum(increase(envoy_http_downstream_cx_destroy_local_active_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "Closed by Envoy",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_downstream_cx_destroy_local_active_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "Cut mid-request",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Closed by client"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Closed by Envoy"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Cut mid-request"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "stat",
+          "title": "TLS",
+          "description": "Days until the served certificate expires (short-lived certs renew with about two left), then handshakes in the range.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 14,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 16,
+            "y": 23
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "min(envoy_server_days_until_first_cert_expiring{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"})",
+              "legendFormat": "Certificate expires in",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_listener_ssl_versions{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\",envoy_ssl_version=~\"TLSv1.3\"}[$__range])) / sum(increase(envoy_listener_ssl_versions{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__range]))",
+              "legendFormat": "TLS 1.3",
+              "range": false,
+              "instant": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_listener_ssl_session_reused{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__range])) / sum(increase(envoy_listener_ssl_handshake{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__range]))",
+              "legendFormat": "Resumed",
+              "range": false,
+              "instant": true,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_listener_ssl_connection_error{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__range]))",
+              "legendFormat": "Failed handshakes",
+              "range": false,
+              "instant": true,
+              "refId": "D"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "text"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short",
+              "mappings": []
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Certificate expires in"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "d"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": null
+                        },
+                        {
+                          "color": "yellow",
+                          "value": 1
+                        },
+                        {
+                          "color": "green",
+                          "value": 2
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "TLS 1.3"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percentunit"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Resumed"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percentunit"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Failed handshakes"
+                },
+                "properties": [
+                  {
+                    "id": "decimals",
+                    "value": 0
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "text",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true,
+            "text": {
+              "titleSize": 14,
+              "valueSize": 26
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Requests \u00b7 local replies & buffers",
+      "collapsed": true,
+      "id": 24,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 23
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Requests answered by Envoy per hour",
+          "description": "Requests Envoy answered without a backend: redirects, fixed responses from route config, unknown hosts or paths, refused WebSockets.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 12,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 24
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_rq_redirect{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_downstream_rq_redirected_with_normalized_path{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "Redirects",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_rq_direct_response{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "Fixed responses",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_no_route{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_no_cluster{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "No route",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_downstream_rq_ws_on_non_ws_route{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "WebSocket refused",
+              "range": true,
+              "instant": false,
+              "refId": "D"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Redirects"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Fixed responses"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "No route"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "WebSocket refused"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "timeseries",
+          "title": "Bytes buffered for clients",
+          "description": "Bytes waiting in client connections: to reach slow clients (up) or to reach backends (down).",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 15,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 24
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(envoy_http_downstream_cx_tx_bytes_buffered{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+              "legendFormat": "To clients",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(envoy_http2_pending_send_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"})",
+              "legendFormat": "Waiting on HTTP/2 flow control",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(envoy_http_downstream_cx_rx_bytes_buffered{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+              "legendFormat": "From clients",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "To clients"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Waiting on HTTP/2 flow control"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-blue",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  },
+                  {
+                    "id": "custom.gradientMode",
+                    "value": "none"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "From clients"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Compression \u00b7 savings & misses",
+      "collapsed": true,
+      "id": 25,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 24
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Compression per hour",
+          "description": "Compressible response bytes: sent (blue) and saved by compression (gray).",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 16,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 25
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval]))",
+              "legendFormat": "Sent",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_total_uncompressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_total_uncompressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_total_uncompressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) - (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) + sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_total_compressed_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])))",
+              "legendFormat": "Saved",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Sent"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Saved"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "timeseries",
+          "title": "Compression outcomes per hour",
+          "description": "Compressed, or why not: too small, the client didn't ask for an encoding Envoy offers, or content type and headers.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 17,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 25
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)))",
+              "legendFormat": "Compressed",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_content_length_too_small{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_content_length_too_small{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_content_length_too_small{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0))",
+              "legendFormat": "Too small",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_no_accept_header{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_no_accept_header{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_no_accept_header{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_header_identity{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_header_identity{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_header_identity{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_header_not_valid{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_header_not_valid{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_header_not_valid{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)))",
+              "legendFormat": "Client didn't ask",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "clamp_min((sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_not_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_not_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_not_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) - ((sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_compressed{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0))) - (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_content_length_too_small{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_content_length_too_small{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_content_length_too_small{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) - ((sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_no_accept_header{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_no_accept_header{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_no_accept_header{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_header_identity{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_header_identity{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_header_identity{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_compressor_envoy_compression_zstd_compressor_zstd_header_not_valid{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_brotli_compressor_brotli_header_not_valid{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or sum(increase(envoy_http_compressor_envoy_compression_gzip_compressor_gzip_header_not_valid{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0))), 0)",
+              "legendFormat": "Type or headers",
+              "range": true,
+              "instant": false,
+              "refId": "D"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Compressed"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Too small"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#c4c4c4",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Client didn't ask"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Type or headers"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Connections \u00b7 HTTP/3 closes, UDP drops & limits",
+      "collapsed": true,
+      "id": 26,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 25
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "HTTP/3 connection closes per hour",
+          "description": "Why QUIC connections ended. SILENT_IDLE_TIMEOUT is a normal idle close; TOO_MANY_RTOS is packet loss.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 18,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 0,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum by (code) (increase(label_replace({__name__=~\"envoy_listener_http3_downstream_tx_quic_connection_close_error_code_.+\",pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}, \"code\", \"$1\", \"__name__\", \"envoy_listener_http3_downstream_tx_quic_connection_close_error_code_QUIC_(.+)\")[$__interval:]))",
+              "legendFormat": "Envoy: {{code}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum by (code) (increase(label_replace({__name__=~\"envoy_listener_http3_downstream_rx_quic_connection_close_error_code_.+\",pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}, \"code\", \"$1\", \"__name__\", \"envoy_listener_http3_downstream_rx_quic_connection_close_error_code_QUIC_(.+)\")[$__interval:]))",
+              "legendFormat": "Client: {{code}}",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8a8a8a"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*(TOO_MANY_RTOS|FRAME_ERROR|CRITICAL_STREAM).*"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "timeseries",
+          "title": "Dropped UDP datagrams per hour",
+          "description": "HTTP/3 packets dropped because a socket buffer was full.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 19,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 8,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(envoy_listener_udp_downstream_rx_datagram_dropped{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval]))",
+              "legendFormat": "Dropped",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "yellow"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        },
+        {
+          "type": "timeseries",
+          "title": "Limits hit per hour",
+          "description": "Connections or requests refused by a protection: connection caps, overload, size limits, flood guards. Expect none.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 20,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 16,
+            "y": 26
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_listener_downstream_cx_overflow{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval])) or vector(0)) + (sum(increase(envoy_listener_downstream_global_cx_overflow{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval])) or vector(0))) > 0",
+              "legendFormat": "Connection limit",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_listener_downstream_cx_overload_reject{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_downstream_rq_overload_close{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_downstream_cx_overload_disable_keepalive{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0))) > 0",
+              "legendFormat": "Overload",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_http_downstream_rq_too_large{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http_rs_too_large{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval])) or vector(0))) > 0",
+              "legendFormat": "Too large",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_http2_header_overflow{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http2_inbound_empty_frames_flood{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http2_inbound_priority_frames_flood{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http2_inbound_window_update_frames_flood{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http2_outbound_flood{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http2_outbound_control_flood{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0)) + (sum(increase(envoy_http1_response_flood{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval])) or vector(0))) > 0",
+              "legendFormat": "Flood guard",
+              "range": true,
+              "instant": false,
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "((sum(increase(envoy_listener_no_filter_chain_match{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval])) or vector(0))) > 0",
+              "legendFormat": "No matching listener",
+              "range": true,
+              "instant": false,
+              "refId": "E"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0,
+              "noValue": "None hit"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Connection limit"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Overload"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Too large"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Flood guard"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "No matching listener"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "envoy",
+    "envoy-gateway",
+    "gateway-api",
+    "performance"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "${DS_PROMETHEUS}",
+          "value": "${DS_PROMETHEUS}"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(envoy_server_uptime, pod)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Gateway",
+        "multi": true,
+        "name": "gateway",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(envoy_server_uptime, pod)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/^(.+)-[a-z0-9]+-[a-z0-9]+$/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Envoy Gateway / Downstream",
+  "uid": "envoy-gateway-downstream",
+  "version": 1,
+  "weekStart": "",
+  "gnetId": 25871
+}

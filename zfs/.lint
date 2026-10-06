@@ -1,0 +1,16 @@
+---
+exclusions:
+  template-job-rule:
+    reason: One host at a time, selected by the single-value instance variable; job names differ per setup.
+  template-instance-rule:
+    reason: One host at a time, selected by the single-value instance variable; job names differ per setup.
+  target-job-rule:
+    reason: One host at a time, selected by the single-value instance variable; job names differ per setup.
+  target-instance-rule:
+    reason: One host at a time, selected by the single-value instance variable; job names differ per setup.
+  target-rate-interval-rule:
+    reason: Shares over the whole selected range, not a moving rate.
+    entries:
+      - panel: Busiest datasets
+      - panel: Cache hits
+      - panel: Hit rate by tier

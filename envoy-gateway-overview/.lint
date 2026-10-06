@@ -1,0 +1,10 @@
+---
+exclusions:
+  template-job-rule:
+    reason: Gateways are selected by the pod-based gateway variable; job and instance differ per setup.
+  template-instance-rule:
+    reason: Gateways are selected by the pod-based gateway variable; job and instance differ per setup.
+  target-job-rule:
+    reason: Gateways are selected by the pod-based gateway variable; job and instance differ per setup.
+  target-instance-rule:
+    reason: Gateways are selected by the pod-based gateway variable; job and instance differ per setup.

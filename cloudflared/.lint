@@ -1,0 +1,8 @@
+---
+exclusions:
+  template-job-rule:
+    reason: The job variable has no All value; ".+" would also sum the process metrics of every other job.
+  template-instance-rule:
+    reason: Replicas are always aggregated per tunnel.
+  target-instance-rule:
+    reason: Replicas are always aggregated per tunnel.
