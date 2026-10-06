@@ -96,7 +96,7 @@
       }
     ]
   },
-  "description": "Envoy Gateway: status, traffic, status codes, response time, routes and the proxy's own cost. Collapsed rows hold heap, workers, config and DNS.",
+  "description": "Envoy Gateway at a glance: status, traffic, status codes, response time, routes and the proxy's own cost.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
