@@ -253,8 +253,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "thresholds": {
             "mode": "absolute",
@@ -273,7 +273,7 @@
       },
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -325,8 +325,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "thresholds": {
             "mode": "absolute",
@@ -611,7 +611,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "blue",
                   "mode": "fixed"
                 }
               },
@@ -630,7 +630,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "light-orange",
+                  "fixedColor": "light-blue",
                   "mode": "fixed"
                 }
               },
@@ -729,8 +729,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "min": 0,
           "unit": "locale",
@@ -1089,7 +1089,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "#c4c4c4",
                   "mode": "fixed"
                 }
               }
@@ -1119,7 +1119,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "light-orange",
+                  "fixedColor": "light-blue",
                   "mode": "fixed"
                 }
               }
@@ -1134,7 +1134,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "super-light-orange",
+                  "fixedColor": "super-light-blue",
                   "mode": "fixed"
                 }
               }
@@ -1149,7 +1149,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "blue",
                   "mode": "fixed"
                 }
               }
@@ -1687,6 +1687,10 @@
                       "mode": "fixed",
                       "fixedColor": "red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1702,6 +1706,10 @@
                       "mode": "fixed",
                       "fixedColor": "dark-red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1717,6 +1725,10 @@
                       "mode": "fixed",
                       "fixedColor": "light-red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1732,6 +1744,10 @@
                       "mode": "fixed",
                       "fixedColor": "semi-dark-red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -2013,8 +2029,8 @@
                   {
                     "id": "color",
                     "value": {
-                      "mode": "fixed",
-                      "fixedColor": "orange"
+                      "fixedColor": "blue",
+                      "mode": "fixed"
                     }
                   },
                   {
@@ -2032,8 +2048,8 @@
                   {
                     "id": "color",
                     "value": {
-                      "mode": "fixed",
-                      "fixedColor": "light-orange"
+                      "fixedColor": "light-blue",
+                      "mode": "fixed"
                     }
                   },
                   {
