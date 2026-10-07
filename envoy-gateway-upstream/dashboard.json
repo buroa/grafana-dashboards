@@ -567,8 +567,8 @@
       "collapsed": false,
       "id": 26,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 4
       },
@@ -584,8 +584,8 @@
       },
       "id": 9,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 0,
         "y": 5
       },
@@ -682,8 +682,8 @@
       },
       "id": 10,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 12,
         "y": 5
       },
@@ -925,8 +925,8 @@
       "collapsed": false,
       "id": 27,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 13
       },
@@ -942,8 +942,8 @@
       },
       "id": 12,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 0,
         "y": 14
       },
@@ -1062,6 +1062,10 @@
                   "fixedColor": "red",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           },
@@ -1077,6 +1081,10 @@
                   "fixedColor": "yellow",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           },
@@ -1092,6 +1100,10 @@
                   "fixedColor": "dark-red",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           },
@@ -1107,6 +1119,10 @@
                   "fixedColor": "light-red",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           }
@@ -1139,8 +1155,8 @@
       },
       "id": 13,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 12,
         "y": 14
       },
@@ -1214,142 +1230,15 @@
       }
     },
     {
-      "type": "state-timeline",
-      "title": "Endpoint health by route",
-      "description": "Routes below half their healthy endpoints at some point; each slice shows its worst moment.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "id": 17,
-      "gridPos": {
-        "w": 24,
-        "h": 4,
-        "x": 0,
-        "y": 22
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "(min_over_time((min by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / max by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\") > 0))[$__interval:1m]) and on (route) bottomk(10, min_over_time((min by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / max by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\") > 0))[$__range:1m] @ end()) < 0.5)) or on () label_replace(vector(1), \"route\", \"All routes\", \"\", \"\")",
-          "legendFormat": "{{route}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ],
-      "maxDataPoints": 400,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#8a8a8a"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8a8a8a",
-                "value": null
-              }
-            ]
-          },
-          "mappings": [
-            {
-              "type": "range",
-              "options": {
-                "from": 1,
-                "to": 1000000000.0,
-                "result": {
-                  "text": "Healthy",
-                  "color": "#8a8a8a",
-                  "index": 0
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 0.5,
-                "to": 0.9999,
-                "result": {
-                  "text": "Degraded",
-                  "color": "yellow",
-                  "index": 1
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 0.0001,
-                "to": 0.4999,
-                "result": {
-                  "text": "Panic",
-                  "color": "red",
-                  "index": 2
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 0,
-                "to": 0,
-                "result": {
-                  "text": "Down",
-                  "color": "dark-red",
-                  "index": 3
-                }
-              }
-            }
-          ],
-          "custom": {
-            "fillOpacity": 85,
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineWidth": 0,
-            "spanNulls": false
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "alignValue": "center",
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "mergeValues": true,
-        "rowHeight": 0.7,
-        "showValue": "auto",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "interval": "1m"
-    },
-    {
       "type": "row",
       "title": "Connections",
       "collapsed": false,
       "id": 28,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 26
+        "y": 22
       },
       "panels": []
     },
@@ -1363,10 +1252,10 @@
       },
       "id": 18,
       "gridPos": {
-        "w": 24,
         "h": 8,
+        "w": 24,
         "x": 0,
-        "y": 27
+        "y": 23
       },
       "targets": [
         {
@@ -1545,10 +1434,10 @@
       "collapsed": true,
       "id": 29,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 35
+        "y": 31
       },
       "panels": [
         {
@@ -1561,10 +1450,10 @@
           },
           "id": 7,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 0,
-            "y": 36
+            "y": 32
           },
           "targets": [
             {
@@ -1656,10 +1545,10 @@
           },
           "id": 8,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 12,
-            "y": 36
+            "y": 32
           },
           "targets": [
             {
@@ -1751,10 +1640,10 @@
           },
           "id": 11,
           "gridPos": {
-            "w": 24,
             "h": 10,
+            "w": 24,
             "x": 0,
-            "y": 44
+            "y": 40
           },
           "targets": [
             {
@@ -1880,6 +1769,10 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1895,6 +1788,10 @@
                       "fixedColor": "super-light-red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1910,10 +1807,6 @@
                       "fixedColor": "#8a8a8a",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "100 Continue"
                   }
                 ]
               },
@@ -1929,10 +1822,6 @@
                       "fixedColor": "#8a8a8a",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "101 Switching protocols"
                   }
                 ]
               },
@@ -1948,10 +1837,6 @@
                       "fixedColor": "blue",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "200 OK"
                   }
                 ]
               },
@@ -1967,10 +1852,6 @@
                       "fixedColor": "#C0D8FF",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "201 Created"
                   }
                 ]
               },
@@ -1986,10 +1867,6 @@
                       "fixedColor": "#C0D8FF",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "202 Accepted"
                   }
                 ]
               },
@@ -2005,10 +1882,6 @@
                       "fixedColor": "#8AB8FF",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "204 No content"
                   }
                 ]
               },
@@ -2024,10 +1897,6 @@
                       "fixedColor": "#1F60C4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "206 Partial content"
                   }
                 ]
               },
@@ -2043,10 +1912,6 @@
                       "fixedColor": "#C0D8FF",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "207 Multi-status"
                   }
                 ]
               },
@@ -2062,10 +1927,6 @@
                       "fixedColor": "#c4c4c4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "301 Moved permanently"
                   }
                 ]
               },
@@ -2081,10 +1942,6 @@
                       "fixedColor": "#c4c4c4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "302 Found"
                   }
                 ]
               },
@@ -2100,10 +1957,6 @@
                       "fixedColor": "#c4c4c4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "303 See other"
                   }
                 ]
               },
@@ -2119,10 +1972,6 @@
                       "fixedColor": "#c4c4c4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "304 Not modified"
                   }
                 ]
               },
@@ -2138,10 +1987,6 @@
                       "fixedColor": "#c4c4c4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "307 Temporary redirect"
                   }
                 ]
               },
@@ -2157,10 +2002,6 @@
                       "fixedColor": "#c4c4c4",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "308 Permanent redirect"
                   }
                 ]
               },
@@ -2176,10 +2017,6 @@
                       "fixedColor": "light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "400 Bad request"
                   }
                 ]
               },
@@ -2195,10 +2032,6 @@
                       "fixedColor": "semi-dark-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "401 Unauthorized"
                   }
                 ]
               },
@@ -2214,10 +2047,6 @@
                       "fixedColor": "dark-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "403 Forbidden"
                   }
                 ]
               },
@@ -2233,10 +2062,6 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "404 Not found"
                   }
                 ]
               },
@@ -2252,10 +2077,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "405 Method not allowed"
                   }
                 ]
               },
@@ -2271,10 +2092,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "406 Not acceptable"
                   }
                 ]
               },
@@ -2290,10 +2107,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "408 Request timeout"
                   }
                 ]
               },
@@ -2309,10 +2122,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "409 Conflict"
                   }
                 ]
               },
@@ -2328,10 +2137,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "410 Gone"
                   }
                 ]
               },
@@ -2347,10 +2152,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "411 Length required"
                   }
                 ]
               },
@@ -2366,10 +2167,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "412 Precondition failed"
                   }
                 ]
               },
@@ -2385,10 +2182,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "413 Content too large"
                   }
                 ]
               },
@@ -2404,10 +2197,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "414 URI too long"
                   }
                 ]
               },
@@ -2423,10 +2212,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "415 Unsupported media type"
                   }
                 ]
               },
@@ -2442,10 +2227,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "416 Range not satisfiable"
                   }
                 ]
               },
@@ -2461,10 +2242,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "421 Misdirected request"
                   }
                 ]
               },
@@ -2480,10 +2257,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "422 Unprocessable content"
                   }
                 ]
               },
@@ -2499,10 +2272,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "425 Too early"
                   }
                 ]
               },
@@ -2518,10 +2287,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "426 Upgrade required"
                   }
                 ]
               },
@@ -2537,10 +2302,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "428 Precondition required"
                   }
                 ]
               },
@@ -2556,10 +2317,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "429 Too many requests"
                   }
                 ]
               },
@@ -2575,10 +2332,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "431 Headers too large"
                   }
                 ]
               },
@@ -2594,10 +2347,6 @@
                       "fixedColor": "super-light-yellow",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "451 Unavailable for legal reasons"
                   }
                 ]
               },
@@ -2613,10 +2362,6 @@
                       "fixedColor": "dark-red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "500 Internal server error"
                   }
                 ]
               },
@@ -2632,10 +2377,6 @@
                       "fixedColor": "super-light-red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "501 Not implemented"
                   }
                 ]
               },
@@ -2651,10 +2392,6 @@
                       "fixedColor": "semi-dark-red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "502 Bad gateway"
                   }
                 ]
               },
@@ -2670,10 +2407,6 @@
                       "fixedColor": "red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "503 Service unavailable"
                   }
                 ]
               },
@@ -2689,10 +2422,6 @@
                       "fixedColor": "light-red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "504 Gateway timeout"
                   }
                 ]
               },
@@ -2708,10 +2437,6 @@
                       "fixedColor": "super-light-red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "505 HTTP version not supported"
                   }
                 ]
               },
@@ -2727,10 +2452,6 @@
                       "fixedColor": "super-light-red",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "507 Insufficient storage"
                   }
                 ]
               }
@@ -2757,14 +2478,14 @@
     },
     {
       "type": "row",
-      "title": "Failures \u00b7 retries, panic routing & endpoint changes",
+      "title": "Failures \u00b7 retries, panic routing, endpoint health & changes",
       "collapsed": true,
       "id": 30,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 36
+        "y": 32
       },
       "panels": [
         {
@@ -2777,10 +2498,10 @@
           },
           "id": 14,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 0,
-            "y": 37
+            "y": 33
           },
           "targets": [
             {
@@ -2915,6 +2636,10 @@
                       "fixedColor": "red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -2947,10 +2672,10 @@
           },
           "id": 15,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 8,
-            "y": 37
+            "y": 33
           },
           "targets": [
             {
@@ -3031,10 +2756,10 @@
           },
           "id": 16,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 16,
-            "y": 37
+            "y": 33
           },
           "targets": [
             {
@@ -3043,7 +2768,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(envoy_cluster_membership_change{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval] offset -$__interval))",
+              "expr": "sum(increase(envoy_cluster_membership_change{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "Changes",
               "range": true,
               "instant": false,
@@ -3101,7 +2826,8 @@
                   }
                 ]
               },
-              "decimals": 0
+              "decimals": 0,
+              "noValue": "No changes"
             },
             "overrides": []
           },
@@ -3121,6 +2847,133 @@
             }
           },
           "interval": "1h"
+        },
+        {
+          "type": "state-timeline",
+          "title": "Endpoint health by route",
+          "description": "Routes below half their healthy endpoints at some point; each slice shows its worst moment.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 17,
+          "gridPos": {
+            "h": 4,
+            "w": 24,
+            "x": 0,
+            "y": 41
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(min_over_time((min by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / max by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\") > 0))[$__interval:1m]) and on (route) bottomk(10, min_over_time((min by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_healthy{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\")) / max by (route) (label_replace(label_replace(label_replace(envoy_cluster_membership_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_cluster_name=~\"$route\"}, \"route\", \"$1/$2\", \"envoy_cluster_name\", \"[a-z]+route/[^/]+/([^/]+)/rule/([0-9]+)\"), \"route\", \"$1\", \"route\", \"(.+)/0\"), \"gateway\", \"$1\", \"pod\", \"(.+)-[a-z0-9]+-[a-z0-9]+\") > 0))[$__range:1m] @ end()) < 0.5)) or on () label_replace(vector(1), \"route\", \"All routes\", \"\", \"\")",
+              "legendFormat": "{{route}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "maxDataPoints": 400,
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8a8a8a"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8a8a8a",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 1,
+                    "to": 1000000000.0,
+                    "result": {
+                      "text": "Healthy",
+                      "color": "#8a8a8a",
+                      "index": 0
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 0.5,
+                    "to": 0.9999,
+                    "result": {
+                      "text": "Degraded",
+                      "color": "yellow",
+                      "index": 1
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 0.0001,
+                    "to": 0.4999,
+                    "result": {
+                      "text": "Panic",
+                      "color": "red",
+                      "index": 2
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 0,
+                    "to": 0,
+                    "result": {
+                      "text": "Down",
+                      "color": "dark-red",
+                      "index": 3
+                    }
+                  }
+                }
+              ],
+              "custom": {
+                "fillOpacity": 85,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.7,
+            "showValue": "auto",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "interval": "1m"
         }
       ]
     },
@@ -3130,10 +2983,10 @@
       "collapsed": true,
       "id": 31,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 37
+        "y": 33
       },
       "panels": [
         {
@@ -3146,10 +2999,10 @@
           },
           "id": 20,
           "gridPos": {
-            "w": 12,
             "h": 11,
+            "w": 12,
             "x": 0,
-            "y": 38
+            "y": 34
           },
           "targets": [
             {
@@ -3225,10 +3078,10 @@
           },
           "id": 19,
           "gridPos": {
-            "w": 12,
             "h": 11,
+            "w": 12,
             "x": 12,
-            "y": 38
+            "y": 34
           },
           "targets": [
             {
@@ -3363,6 +3216,10 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -3395,10 +3252,10 @@
           },
           "id": 22,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 0,
-            "y": 49
+            "y": 45
           },
           "targets": [
             {
@@ -3532,10 +3389,10 @@
           },
           "id": 21,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 8,
-            "y": 49
+            "y": 45
           },
           "targets": [
             {
@@ -3660,10 +3517,10 @@
           },
           "id": 23,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 16,
-            "y": 49
+            "y": 45
           },
           "targets": [
             {
@@ -3798,6 +3655,10 @@
                       "fixedColor": "red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -3828,10 +3689,10 @@
       "collapsed": true,
       "id": 32,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 38
+        "y": 34
       },
       "panels": [
         {
@@ -3844,10 +3705,10 @@
           },
           "id": 24,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 0,
-            "y": 39
+            "y": 35
           },
           "targets": [
             {
@@ -3940,10 +3801,10 @@
           },
           "id": 25,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 12,
-            "y": 39
+            "y": 35
           },
           "targets": [
             {

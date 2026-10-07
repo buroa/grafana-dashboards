@@ -8,7 +8,7 @@ Envoy Gateway at a glance: status, traffic, status codes, response time, routes 
 
 ## Overview
 
-The first stop for an Envoy Gateway data plane. The top row answers "is it healthy?": gateway status, success rate, request volume, share of requests under 100 ms, bytes served and open connections. Below it, traffic, errors, slow requests, the busiest and failing routes, and proxy CPU and memory.
+The first stop for an Envoy Gateway data plane. The top row answers "is it healthy?": gateway status, success rate, request volume, share of requests under 100 ms, bytes served and open connections. Below it, errors and slow requests, traffic, the busiest and failing routes, and proxy CPU and memory.
 
 Collapsed rows hold the detail you only need when something looks off:
 - **Proxy · heap, workers & stalls:** Envoy heap, overload heap pressure, worker balance and event loop stalls.

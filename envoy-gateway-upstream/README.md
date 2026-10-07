@@ -8,11 +8,11 @@ The backend side of Envoy Gateway, per route: response time, failures, endpoint 
 
 ## Overview
 
-How each backend behind Envoy Gateway is doing. The top row shows routes with no healthy endpoints, typical response time, the slowest route, backend failures, retries and requests Envoy gave up on. Below it, response time overall and by route, failures by route, endpoint health and backend connections. A `route` variable narrows every panel to one or more routes.
+How each backend behind Envoy Gateway is doing. The top row shows routes with no healthy endpoints, typical response time, the slowest route, backend failures, retries and requests Envoy gave up on. Below it, response time overall and by route, failures by route and backend connections. A `route` variable narrows every panel to one or more routes.
 
 Collapsed rows:
 - **Routes · traffic & status codes:** requests, throughput and status codes per route.
-- **Failures · retries, panic routing & endpoint changes:** retries, panic-mode routing and endpoint churn.
+- **Failures · retries, panic routing, endpoint health & changes:** retries, panic-mode routing, endpoint health over time and endpoint churn.
 - **Connections · reuse, closes & setup:** requests per connection, close reasons, connect time, connection lifetime and queued requests.
 - **Connections · buffers & flow control:** bytes buffered from backends and read pauses.
 
@@ -30,9 +30,9 @@ Companion dashboards: **Envoy Gateway / Overview** and **Envoy Gateway / Downstr
 
 ![Routes · traffic & status codes](2-routes-traffic-and-status-codes.png)
 
-### Failures · retries, panic routing & endpoint changes
+### Failures · retries, panic routing, endpoint health & changes
 
-![Failures · retries, panic routing & endpoint changes](3-failures-retries-panic-routing-and-endpoint-changes.png)
+![Failures · retries, panic routing, endpoint health & changes](3-failures-retries-panic-routing-endpoint-health-and-changes.png)
 
 ### Connections · reuse, closes & setup
 
