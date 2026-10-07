@@ -383,7 +383,7 @@
     {
       "type": "stat",
       "title": "Not completed",
-      "description": "Requests that ended without a complete response: visitors leaving, or an origin that could not be reached.",
+      "description": "Requests not completed in the selected range: visitors leaving, or an origin that could not be reached.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
