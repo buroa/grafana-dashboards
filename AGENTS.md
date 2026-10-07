@@ -34,7 +34,7 @@ A top-down story of plain questions. Accurate but busy charts get rejected.
 ## Structure
 
 - **Title:** `<App> / <Page>`; single-page dashboards use `Overview`.
-- **Top row:** six 4-wide stat tiles answering "is it healthy?", colored by value, no background blocks. Apps with a state lead with an uppercase status word (ONLINE, CONNECTED, LIVE).
+- **Top row:** six 4-wide stat tiles answering "is it healthy?", colored by value, no background blocks or sparklines. Apps with a state lead with an uppercase status word (ONLINE, CONNECTED, LIVE).
 - **Visible rows:** bare topic nouns (`Traffic`, `Cache`, `Disks`), ordered: is it healthy → what is it doing → why → cost/internals.
 - **Collapsed rows:** `<Topic> · a, b & c`, reusing a visible topic noun where one fits. The details name the panels inside, each idea once; rename the row when its panels change. Order by how likely someone opens them, mirroring the visible order.
 - **Variable bar:** one line. Hide scrape plumbing (`job`, `instance` used only for scoping); entity selectors (host, gateway, route, tracker) stay visible. Drop a dashboard link if it wraps.
@@ -70,7 +70,7 @@ One meaning per hue, on every dashboard:
 ## Panels
 
 - **Forms:** hourly or daily bars for counts; 100%-stacked zone charts for shares; top-10 ranked bar gauges for who/what; tables for multi-attribute comparisons; status-history grids only for bounded entities (trackers, disks, IRC networks), never Envoy routes. Linear axes only.
-- **Read/write pairs:** one mirrored panel; what the app sends out (reads, responses, a torrent client's upload) above zero, what it takes in below.
+- **Read/write pairs:** one mirrored panel for bytes and operations; what the app sends out (reads, responses, a torrent client's upload) above zero, what it takes in below. Latency and request size are never mirrored: a negative millisecond means nothing.
 - **Fills:** lines 0, single areas 15% gradient, stacked 50%, bars 85%; `lineWidth` 1; filled areas `softMin` 0. Stacked non-success bands get `lineWidth` 0, or the outline turns red.
 - **Legends:** lists at the bottom, never tables. Per-hour bars show a total (mean for percentages). One-line-per-entity panels get none.
 - **Tooltips:** multi, sorted descending.
@@ -116,4 +116,4 @@ Verified; don't relearn them. Dashboard-specific traps live in that folder's `AG
 - A state timeline with no data errors with "Data does not have a time field"; fall back with `or on() label_replace(vector(1), ...)`.
 - The transpose transformation turns a leading string field into the header.
 - Query variable regexes accept named `(?<value>…)(?<text>…)` groups.
-- Range queries end at the last whole step, and a `[$__interval]` window counts the bucket that ends at its step, so per-hour and per-day panels label each bucket with its end and never show the current one. Count forward instead: `[$__interval] offset -$__interval` on every window and subquery, `unless x` (not `unless x offset $__interval`) in lazy-counter terms, and `barAlignment: 1` on bars. Needs Prometheus 2.33 or later.
+- Range queries end at the last whole step, and a `[$__interval]` window counts the bucket that ends at its step, so per-hour and per-day panels label each bucket with its end and never show the current one. Count forward instead: `[$__interval] offset -$__interval` on every window and subquery, `unless x` (not `unless x offset $__interval`) in lazy-counter terms, and `barAlignment: 1` on bars. Needs Prometheus 2.33 or later. A per-hour legend total therefore spans the aligned buckets, running hour included, and can exceed the matching range tile by up to one bucket; that is accepted.
