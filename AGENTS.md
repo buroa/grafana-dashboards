@@ -116,3 +116,4 @@ Verified; don't relearn them. Dashboard-specific traps live in that folder's `AG
 - A state timeline with no data errors with "Data does not have a time field"; fall back with `or on() label_replace(vector(1), ...)`.
 - The transpose transformation turns a leading string field into the header.
 - Query variable regexes accept named `(?<value>…)(?<text>…)` groups.
+- Range queries end at the last whole step, and a `[$__interval]` window counts the bucket that ends at its step, so per-hour and per-day panels label each bucket with its end and never show the current one. Count forward instead: `[$__interval] offset -$__interval` on every window and subquery, `unless x` (not `unless x offset $__interval`) in lazy-counter terms, and `barAlignment: 1` on bars. Needs Prometheus 2.33 or later.
