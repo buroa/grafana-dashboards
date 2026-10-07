@@ -106,7 +106,7 @@
       }
     ]
   },
-  "description": "cloudflared: tunnel status, request outcomes, throughput and runtime cost. Collapsed rows hold error codes, requests in flight and edge connections.",
+  "description": "cloudflared: tunnel status, request outcomes, throughput, requests in flight and edge connections. Collapsed rows hold error codes, edge round-trip time and locations, control calls and runtime cost.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -382,8 +382,8 @@
     },
     {
       "type": "stat",
-      "title": "Cancelled",
-      "description": "Requests that ended without a complete response, mostly visitors leaving; origin failures count here too.",
+      "title": "Not completed",
+      "description": "Requests that ended without a complete response: visitors leaving, or an origin that could not be reached.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -412,8 +412,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "text"
+            "mode": "thresholds"
           },
           "thresholds": {
             "mode": "absolute",
@@ -421,6 +420,14 @@
               {
                 "color": "text",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.9
               }
             ]
           },
@@ -605,8 +612,8 @@
       "collapsed": false,
       "id": 18,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 4
       },
@@ -615,15 +622,15 @@
     {
       "type": "timeseries",
       "title": "Requests per hour",
-      "description": "What happened to each request. Cancelled: no complete response, mostly visitors leaving. WebSocket and other: upgraded or still open.",
+      "description": "What happened to each request. Not completed: no full response, mostly visitors leaving. WebSocket and other: upgraded or still open.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "id": 7,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 0,
         "y": 5
       },
@@ -659,7 +666,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(cloudflared_tunnel_request_errors{job=~\"$job\"}[$__interval] offset -$__interval))",
-          "legendFormat": "Cancelled",
+          "legendFormat": "Not completed",
           "range": true,
           "instant": false,
           "refId": "C"
@@ -775,7 +782,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Cancelled"
+              "options": "Not completed"
             },
             "properties": [
               {
@@ -784,6 +791,10 @@
                   "fixedColor": "#8a8a8a",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           },
@@ -799,6 +810,10 @@
                   "fixedColor": "yellow",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           },
@@ -814,6 +829,10 @@
                   "fixedColor": "red",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
               }
             ]
           }
@@ -846,8 +865,8 @@
       },
       "id": 8,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 12,
         "y": 5
       },
@@ -937,12 +956,12 @@
     },
     {
       "type": "row",
-      "title": "Runtime",
+      "title": "Tunnel",
       "collapsed": false,
       "id": 19,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 13
       },
@@ -950,16 +969,16 @@
     },
     {
       "type": "timeseries",
-      "title": "CPU",
-      "description": "CPU per cloudflared replica, as a share of one core.",
+      "title": "Requests in flight",
+      "description": "Requests open through each replica. Streams and WebSockets set the floor.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "id": 9,
+      "id": 12,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 0,
         "y": 14
       },
@@ -970,7 +989,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "label_replace(sum by (pod) (rate(process_cpu_seconds_total{job=~\"$job\"}[$__rate_interval])), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+          "expr": "label_replace(sum by (pod) (cloudflared_tunnel_concurrent_requests_per_tunnel{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
           "legendFormat": "{{instance_name}}",
           "range": true,
           "instant": false,
@@ -981,7 +1000,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "#4fb3bf"
+            "fixedColor": "blue"
           },
           "custom": {
             "axisBorderShow": false,
@@ -1016,7 +1035,7 @@
               "mode": "off"
             }
           },
-          "unit": "percentunit",
+          "unit": "short",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1025,7 +1044,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "decimals": 0
         },
         "overrides": []
       },
@@ -1045,16 +1065,16 @@
     },
     {
       "type": "timeseries",
-      "title": "Memory",
-      "description": "Resident memory per cloudflared replica.",
+      "title": "Edge connections",
+      "description": "Connections each replica holds to Cloudflare. A dip is a dropped connection.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "id": 10,
+      "id": 14,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 12,
         "y": 14
       },
@@ -1065,7 +1085,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "label_replace(sum by (pod) (process_resident_memory_bytes{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+          "expr": "label_replace(sum by (pod) (cloudflared_tunnel_ha_connections{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
           "legendFormat": "{{instance_name}}",
           "range": true,
           "instant": false,
@@ -1076,7 +1096,7 @@
         "defaults": {
           "color": {
             "mode": "fixed",
-            "fixedColor": "purple"
+            "fixedColor": "blue"
           },
           "custom": {
             "axisBorderShow": false,
@@ -1095,7 +1115,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "stepAfter",
             "lineWidth": 1,
             "pointSize": 4,
             "scaleDistribution": {
@@ -1111,7 +1131,7 @@
               "mode": "off"
             }
           },
-          "unit": "bytes",
+          "unit": "short",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1120,7 +1140,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "min": 0,
+          "decimals": 0
         },
         "overrides": []
       },
@@ -1140,12 +1162,12 @@
     },
     {
       "type": "row",
-      "title": "Traffic \u00b7 error codes, in flight & goroutines",
+      "title": "Traffic \u00b7 error codes",
       "collapsed": true,
       "id": 20,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 22
       },
@@ -1160,8 +1182,8 @@
           },
           "id": 11,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 12,
             "x": 0,
             "y": 23
           },
@@ -1476,310 +1498,21 @@
               "valueSize": 18
             }
           }
-        },
-        {
-          "type": "timeseries",
-          "title": "Requests in flight",
-          "description": "Requests open through each replica. Streams and WebSockets set the floor.",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "id": 12,
-          "gridPos": {
-            "w": 8,
-            "h": 8,
-            "x": 8,
-            "y": 23
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "editorMode": "code",
-              "expr": "label_replace(sum by (pod) (cloudflared_tunnel_concurrent_requests_per_tunnel{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
-              "legendFormat": "{{instance_name}}",
-              "range": true,
-              "instant": false,
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "fixed",
-                "fixedColor": "blue"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.8,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 4,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "unit": "short",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
-              },
-              "decimals": 0
-            },
-            "overrides": []
-          },
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": false
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "desc"
-            }
-          }
-        },
-        {
-          "type": "timeseries",
-          "title": "Goroutines",
-          "description": "Goroutines per replica. They track requests in flight; growth with flat traffic is a leak.",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "id": 13,
-          "gridPos": {
-            "w": 8,
-            "h": 8,
-            "x": 16,
-            "y": 23
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "editorMode": "code",
-              "expr": "label_replace(sum by (pod) (go_goroutines{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
-              "legendFormat": "{{instance_name}}",
-              "range": true,
-              "instant": false,
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "fixed",
-                "fixedColor": "#8a8a8a"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.8,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 4,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "unit": "short",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
-              },
-              "decimals": 0
-            },
-            "overrides": []
-          },
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": false
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "desc"
-            }
-          }
         }
       ]
     },
     {
       "type": "row",
-      "title": "Tunnel \u00b7 connections, round-trip time, locations & control calls",
+      "title": "Tunnel \u00b7 round-trip time, locations & control calls",
       "collapsed": true,
       "id": 21,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 23
       },
       "panels": [
-        {
-          "type": "timeseries",
-          "title": "Edge connections",
-          "description": "Connections each replica holds to Cloudflare. A dip is a dropped connection.",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "id": 14,
-          "gridPos": {
-            "w": 12,
-            "h": 8,
-            "x": 0,
-            "y": 24
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "editorMode": "code",
-              "expr": "label_replace(sum by (pod) (cloudflared_tunnel_ha_connections{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
-              "legendFormat": "{{instance_name}}",
-              "range": true,
-              "instant": false,
-              "refId": "A"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "fixed",
-                "fixedColor": "blue"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.8,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "stepAfter",
-                "lineWidth": 1,
-                "pointSize": 4,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "unit": "short",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
-              },
-              "min": 0,
-              "decimals": 0
-            },
-            "overrides": []
-          },
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": false
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "desc"
-            }
-          }
-        },
         {
           "type": "timeseries",
           "title": "Edge round-trip time",
@@ -1790,9 +1523,9 @@
           },
           "id": 17,
           "gridPos": {
-            "w": 12,
             "h": 8,
-            "x": 12,
+            "w": 8,
+            "x": 0,
             "y": 24
           },
           "targets": [
@@ -1929,10 +1662,10 @@
           },
           "id": 15,
           "gridPos": {
-            "w": 12,
             "h": 8,
-            "x": 0,
-            "y": 32
+            "w": 8,
+            "x": 8,
+            "y": 24
           },
           "targets": [
             {
@@ -2008,10 +1741,10 @@
           },
           "id": 16,
           "gridPos": {
-            "w": 12,
             "h": 8,
-            "x": 12,
-            "y": 32
+            "w": 8,
+            "x": 16,
+            "y": 24
           },
           "targets": [
             {
@@ -2119,6 +1852,10 @@
                       "fixedColor": "red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -2142,6 +1879,306 @@
           "interval": "1h"
         }
       ]
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 22,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "CPU",
+          "description": "CPU per cloudflared replica, as a share of one core.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 9,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 25
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (rate(process_cpu_seconds_total{job=~\"$job\"}[$__rate_interval])), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#4fb3bf"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "percentunit",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Memory",
+          "description": "Resident memory per cloudflared replica.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 10,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 25
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (process_resident_memory_bytes{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "purple"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Goroutines",
+          "description": "Goroutines per replica. They track requests in flight; growth with flat traffic is a leak.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 13,
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 25
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (go_goroutines{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8a8a8a"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        }
+      ],
+      "title": "Runtime \u00b7 CPU, memory & goroutines",
+      "type": "row"
     }
   ],
   "refresh": "1m",
