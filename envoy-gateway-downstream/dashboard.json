@@ -1575,7 +1575,7 @@
         {
           "type": "stat",
           "title": "TLS",
-          "description": "Days until the served certificate expires (short-lived certs renew with about two left), then handshakes in the range.",
+          "description": "Days until the served certificate expires (short-lived certs renew with about two left), then handshakes in the selected range.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"

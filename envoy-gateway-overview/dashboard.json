@@ -610,8 +610,8 @@
     },
     {
       "type": "timeseries",
-      "title": "Errors per hour",
-      "description": "Error responses from routes, by status code. 4xx: refused or not found. 5xx: the gateway or a backend failed.",
+      "title": "Server errors per hour",
+      "description": "Server error responses from routes, by status code: the gateway or a backend failed. Expect none.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -630,7 +630,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "(sum by (envoy_response_code) ((increase(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"[45]..\"}[$__interval] offset -$__interval) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"[45]..\"}[$__interval] offset -$__interval) * 0))) + sum by (envoy_response_code) (((min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"[45]..\"}[$__interval] offset -$__interval) unless envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"[45]..\"}) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"[45]..\"}[$__interval] offset -$__interval) * 0)))) > 0",
+          "expr": "(sum by (envoy_response_code) ((increase(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"5..\"}[$__interval] offset -$__interval) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"5..\"}[$__interval] offset -$__interval) * 0))) + sum by (envoy_response_code) (((min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"5..\"}[$__interval] offset -$__interval) unless envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"5..\"}) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"5..\"}[$__interval] offset -$__interval) * 0)))) > 0",
           "legendFormat": "{{envoy_response_code}}",
           "range": true,
           "instant": false,
@@ -687,73 +687,10 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No server errors"
         },
         "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "^1..( .+)?$"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "^2..( .+)?$"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C0D8FF",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "^3..( .+)?$"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "^4..( .+)?$"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              }
-            ]
-          },
           {
             "matcher": {
               "id": "byRegexp",
@@ -770,709 +707,6 @@
               {
                 "id": "custom.lineWidth",
                 "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "100"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "100 Continue"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "101"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "101 Switching protocols"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "200"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "200 OK"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "201"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C0D8FF",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "201 Created"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "202"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C0D8FF",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "202 Accepted"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "204"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8AB8FF",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "204 No content"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "206"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1F60C4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "206 Partial content"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "207"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C0D8FF",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "207 Multi-status"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "301"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "301 Moved permanently"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "302"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "302 Found"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "303"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "303 See other"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "304"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "304 Not modified"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "307"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "307 Temporary redirect"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "308"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#c4c4c4",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "308 Permanent redirect"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "400"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "400 Bad request"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "401"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "401 Unauthorized"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "403"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "403 Forbidden"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "404"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "404 Not found"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "405"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "405 Method not allowed"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "406"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "406 Not acceptable"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "408"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "408 Request timeout"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "409"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "409 Conflict"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "410"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "410 Gone"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "411"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "411 Length required"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "412"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "412 Precondition failed"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "413"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "413 Content too large"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "414"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "414 URI too long"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "415"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "415 Unsupported media type"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "416"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "416 Range not satisfiable"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "421"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "421 Misdirected request"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "422"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "422 Unprocessable content"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "425"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "425 Too early"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "426"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "426 Upgrade required"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "428"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "428 Precondition required"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "429"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "429 Too many requests"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "431"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "431 Headers too large"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "451"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "451 Unavailable for legal reasons"
               }
             ]
           },
@@ -2181,7 +1415,7 @@
     {
       "type": "table",
       "title": "Traffic by route",
-      "description": "Each route's average traffic over the range and share of non-5xx responses. Click a route to drill in.",
+      "description": "Each route's average traffic over the selected range and share of non-5xx responses. Click a route to drill in.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -2431,7 +1665,7 @@
     {
       "type": "bargauge",
       "title": "Errors by route",
-      "description": "Routes with the most error responses in the range, per status code.",
+      "description": "Routes with the most error responses in the selected range, per status code.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -2468,10 +1702,6 @@
               {
                 "color": "#8a8a8a",
                 "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0
               }
             ]
           },
@@ -2535,220 +1765,618 @@
       }
     },
     {
-      "type": "row",
-      "title": "Proxy",
-      "collapsed": false,
-      "id": 26,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 34
       },
-      "panels": []
-    },
-    {
-      "type": "timeseries",
-      "title": "CPU",
-      "description": "CPU per Envoy pod, as a share of one core.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "id": 13,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 35
-      },
-      "targets": [
+      "id": 29,
+      "panels": [
         {
+          "type": "timeseries",
+          "title": "Client errors per hour",
+          "description": "Client error responses from routes, by status code: refused, not found or malformed requests.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
-          "expr": "label_replace(sum by (pod) (rate(container_cpu_usage_seconds_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",container=\"envoy\"}[$__rate_interval])), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
-          "legendFormat": "{{instance_name}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#4fb3bf"
+          "id": 30,
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 35
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.8,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum by (envoy_response_code) ((increase(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"4..\"}[$__interval] offset -$__interval) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"4..\"}[$__interval] offset -$__interval) * 0))) + sum by (envoy_response_code) (((min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"4..\"}[$__interval] offset -$__interval) unless envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"4..\"}) or (min_over_time(envoy_cluster_upstream_rq{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_cluster_name=~\"(http|grpc|tls|tcp|udp)route/.+\",envoy_response_code=~\"4..\"}[$__interval] offset -$__interval) * 0)))) > 0",
+              "legendFormat": "{{envoy_response_code}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
             }
-          },
-          "unit": "percentunit",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 1,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0,
+              "noValue": "No client errors"
+            },
+            "overrides": [
               {
-                "color": "green",
-                "value": null
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^4..( .+)?$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "400"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "400 Bad request"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "401"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "401 Unauthorized"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "403"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "403 Forbidden"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "404"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "404 Not found"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "405"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "405 Method not allowed"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "406"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "406 Not acceptable"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "408"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "408 Request timeout"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "409"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "409 Conflict"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "410"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "410 Gone"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "411"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "411 Length required"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "412"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "412 Precondition failed"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "413"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "413 Content too large"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "414"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "414 URI too long"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "415"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "415 Unsupported media type"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "416"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "416 Range not satisfiable"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "421"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "421 Misdirected request"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "422"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "422 Unprocessable content"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "425"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "425 Too early"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "426"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "426 Upgrade required"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "428"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "428 Precondition required"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "429"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "429 Too many requests"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "431"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "431 Headers too large"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "451"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "451 Unavailable for legal reasons"
+                  }
+                ]
               }
             ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Memory",
-      "description": "Working-set memory per Envoy pod.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "id": 14,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 35
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
           },
-          "editorMode": "code",
-          "expr": "label_replace(sum by (pod) (container_memory_working_set_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",container=\"envoy\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
-          "legendFormat": "{{instance_name}}",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "purple"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.8,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
             }
           },
-          "unit": "bytes",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
+          "interval": "1h"
         }
-      }
+      ],
+      "title": "Responses \u00b7 client errors",
+      "type": "row"
     },
     {
       "type": "row",
-      "title": "Proxy \u00b7 heap, workers & stalls",
+      "title": "Proxy \u00b7 CPU, memory, heap, workers & stalls",
       "collapsed": true,
       "id": 27,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 35
       },
       "panels": [
+        {
+          "type": "timeseries",
+          "title": "CPU",
+          "description": "CPU per Envoy pod, as a share of one core.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 13,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 36
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (rate(container_cpu_usage_seconds_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",container=\"envoy\"}[$__rate_interval])), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#4fb3bf"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "percentunit",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Memory",
+          "description": "Working-set memory per Envoy pod.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 14,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 36
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (container_memory_working_set_bytes{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",container=\"envoy\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "purple"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
         {
           "type": "timeseries",
           "title": "Envoy heap",
@@ -3338,7 +2966,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 36
       },
       "panels": [
         {
@@ -3354,7 +2982,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 45
+            "y": 37
           },
           "targets": [
             {
@@ -3522,7 +3150,7 @@
         {
           "type": "bargauge",
           "title": "Config apply time",
-          "description": "Slowest 1 % of config updates to apply in the range, by kind. Big route or cluster sets take longest.",
+          "description": "Slowest 1 % of config updates to apply in the selected range, by kind. Big route sets take longest.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -3532,7 +3160,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 45
+            "y": 37
           },
           "targets": [
             {
@@ -3647,7 +3275,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 53
+            "y": 45
           },
           "targets": [
             {
@@ -3729,8 +3357,8 @@
         },
         {
           "type": "timeseries",
-          "title": "DNS lookups per hour",
-          "description": "Lookups Envoy made for clusters addressed by hostname, and those that timed out.",
+          "title": "DNS timeouts per hour",
+          "description": "Lookups for clusters addressed by hostname that timed out. Expect none.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -3740,7 +3368,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 53
+            "y": 45
           },
           "targets": [
             {
@@ -3749,23 +3377,11 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(envoy_dns_cares_resolve_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval] offset -$__interval))",
-              "legendFormat": "Lookups",
-              "range": true,
-              "instant": false,
-              "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "editorMode": "code",
-              "expr": "sum(increase(envoy_dns_cares_timeouts{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval] offset -$__interval))",
+              "expr": "sum(increase(envoy_dns_cares_timeouts{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "Timed out",
               "range": true,
               "instant": false,
-              "refId": "B"
+              "refId": "A"
             }
           ],
           "fieldConfig": {
@@ -3818,24 +3434,10 @@
                   }
                 ]
               },
-              "decimals": 0
+              "decimals": 0,
+              "noValue": "No timeouts"
             },
             "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Lookups"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#8a8a8a",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
               {
                 "matcher": {
                   "id": "byName",
