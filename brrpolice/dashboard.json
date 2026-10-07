@@ -90,8 +90,8 @@
   "panels": [
     {
       "type": "stat",
-      "title": "Last poll",
-      "description": "Time since the last poll of qBittorrent (every 10s by default). Over a minute means it's stuck or can't connect.",
+      "title": "Since last poll",
+      "description": "Time since the last successful poll of qBittorrent. Over a minute means it is stuck or cannot connect.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -118,7 +118,7 @@
               }
             ]
           },
-          "unit": "suffix:s ago",
+          "unit": "s",
           "mappings": [],
           "decimals": 0
         },
@@ -170,7 +170,7 @@
     {
       "type": "stat",
       "title": "Errors",
-      "description": "API errors, failed bans, failed prunes and metrics errors in the range. Should be 0.",
+      "description": "API errors, failed bans, failed prunes and metrics errors in the selected range. Should be 0.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -317,7 +317,7 @@
     {
       "type": "stat",
       "title": "Bans applied",
-      "description": "New bans in the range.",
+      "description": "New bans in the selected range.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -782,7 +782,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"64.0\"}[$__range]))",
-          "legendFormat": "< 1 min",
+          "legendFormat": "Under 1 min",
           "range": false,
           "instant": true,
           "refId": "A"
@@ -818,7 +818,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"512.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"256.0\"}[$__range]))",
-          "legendFormat": "4-8 min",
+          "legendFormat": "4-9 min",
           "range": false,
           "instant": true,
           "refId": "D"
@@ -830,7 +830,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"1024.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"512.0\"}[$__range]))",
-          "legendFormat": "8-17 min",
+          "legendFormat": "9-17 min",
           "range": false,
           "instant": true,
           "refId": "E"
@@ -854,7 +854,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"+Inf\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"2048.0\"}[$__range]))",
-          "legendFormat": "> 34 min",
+          "legendFormat": "34 min+",
           "range": false,
           "instant": true,
           "refId": "G"
@@ -1270,7 +1270,7 @@
     {
       "type": "timeseries",
       "title": "Poll loop time",
-      "description": "Typical poll (line) against the hourly prune (dots), which stalls polling. Dashed is the 2.5 s budget.",
+      "description": "Typical poll (line) against the hourly prune (dots), which delays polling when it runs past the dashed poll interval.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1367,7 +1367,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Prune budget"
+              "options": "Poll interval"
             },
             "properties": [
               {
@@ -1450,8 +1450,8 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "vector(2.5)",
-          "legendFormat": "Prune budget",
+          "expr": "vector($poll_interval)",
+          "legendFormat": "Poll interval",
           "range": true,
           "instant": false,
           "refId": "C"
@@ -2246,6 +2246,26 @@
           }
         ],
         "query": "0.8",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "10",
+          "value": "10"
+        },
+        "description": "qbittorrent.poll_interval in seconds",
+        "hide": 0,
+        "label": "Poll interval",
+        "name": "poll_interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "10",
+            "value": "10"
+          }
+        ],
+        "query": "10",
         "skipUrlSync": false,
         "type": "textbox"
       }
