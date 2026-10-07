@@ -8,14 +8,14 @@ OpenZFS on Linux from node-exporter and smartctl_exporter: pool health, workload
 
 ## Overview
 
-The top row answers "is the pool OK?": pool health, errors, free space, cache hit rate, write throttling and ARC size. Below it, client throughput and IOPS, busiest datasets, hit rate by tier, where reads come from, HDD and SSD latency, disk busy, disk latency vs. peers (to spot a slow disk), ARC size vs. target and RAM headroom.
+The top row answers "is the pool OK?": pool health, errors, free space, RAM and L2ARC hit rates, write throttling and ARC size. Below it, client throughput and IOPS, busiest datasets, where reads come from, HDD and SSD latency, disk busy and disk latency vs. peers (to spot a slow disk).
 
 Each collapsed row holds the detail for its topic:
 - **Pools · states & dataset space**
 - **Workload · sync writes & throttle:** sync writes by vdev class (SLOG or special), activity and throttle delays.
 - **Cache · ARC lists, L2ARC & prefetch:** MRU/MFU hits, ghost hits, evictions, L2ARC feed and contents, dbuf and dnode hits, prefetch.
 - **Disks · SMART & disk detail:** SMART health, temperature, throughput, IOPS, request size, latency, queue depth and cache flush latency per disk.
-- **Memory · ARC contents & overhead:** ARC contents, overhead, compression, reclaim pressure and eviction skips.
+- **Memory · ARC size, headroom, contents & overhead:** ARC size against its target, RAM headroom, ARC contents, overhead, compression, reclaim pressure and eviction skips.
 
 ## Requirements
 - node-exporter with the `zfs` collector (`node_zfs_*`) plus the standard `node_disk_*` and `node_filesystem_*` collectors.
@@ -40,6 +40,6 @@ Each collapsed row holds the detail for its topic:
 
 ![Disks · SMART & disk detail](5-disks-smart-and-disk-detail.png)
 
-### Memory · ARC contents & overhead
+### Memory · ARC size, headroom, contents & overhead
 
-![Memory · ARC contents & overhead](6-memory-arc-contents-and-overhead.png)
+![Memory · ARC size, headroom, contents & overhead](6-memory-arc-size-headroom-contents-and-overhead.png)

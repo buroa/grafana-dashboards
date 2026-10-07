@@ -411,7 +411,7 @@
     {
       "type": "stat",
       "title": "Cache hits",
-      "description": "Share of reads served from RAM or L2ARC without touching a pool disk.",
+      "description": "RAM: reads answered from memory. L2ARC: RAM misses answered by the cache devices.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -436,7 +436,38 @@
           "noValue": "idle",
           "decimals": 1
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RAM"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "L2ARC"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#4fb3bf",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "colorMode": "value",
@@ -452,7 +483,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value_and_name",
         "wideLayout": true,
         "text": {
           "titleSize": 13,
@@ -466,11 +497,23 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "(sum(rate(node_zfs_arc_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__range]))) / (sum(rate(node_zfs_arc_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_iohits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_misses{instance=\"$instance\"}[$__range])) > 0)",
-          "legendFormat": "Served from cache",
+          "expr": "(sum(rate(node_zfs_arc_demand_data_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_hits{instance=\"$instance\"}[$__range]))) / (sum(rate(node_zfs_arc_demand_data_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_data_iohits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_data_misses{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_iohits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_misses{instance=\"$instance\"}[$__range])) > 0)",
+          "legendFormat": "RAM",
           "range": false,
           "instant": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "(sum(rate(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__range]))) / (sum(rate(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_l2_misses{instance=\"$instance\"}[$__range])) > 0)",
+          "legendFormat": "L2ARC",
+          "range": false,
+          "instant": true,
+          "refId": "B"
         }
       ],
       "id": 4,
@@ -591,7 +634,7 @@
       },
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -1206,121 +1249,6 @@
       }
     },
     {
-      "type": "stat",
-      "title": "Hit rate by tier",
-      "description": "RAM: reads answered from memory. L2ARC: RAM misses answered by the cache devices.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "text"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percentunit",
-          "mappings": [],
-          "decimals": 1
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "RAM (ARC)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "L2ARC"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#4fb3bf",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": true,
-        "text": {
-          "titleSize": 14,
-          "valueSize": 26
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "(sum(rate(node_zfs_arc_demand_data_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_hits{instance=\"$instance\"}[$__range]))) / (sum(rate(node_zfs_arc_demand_data_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_data_iohits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_data_misses{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_iohits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_demand_metadata_misses{instance=\"$instance\"}[$__range])) > 0)",
-          "legendFormat": "RAM (ARC)",
-          "range": false,
-          "instant": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "(sum(rate(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__range]))) / (sum(rate(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__range])) + sum(rate(node_zfs_arc_l2_misses{instance=\"$instance\"}[$__range])) > 0)",
-          "legendFormat": "L2ARC",
-          "range": false,
-          "instant": true,
-          "refId": "B"
-        }
-      ],
-      "id": 17,
-      "gridPos": {
-        "h": 9,
-        "w": 6,
-        "x": 0,
-        "y": 24
-      }
-    },
-    {
       "type": "timeseries",
       "title": "Where reads come from",
       "description": "Client reads (line) against L2ARC and disk reads (stacked); the gap is RAM. Disk reads include prefetch and scrub.",
@@ -1498,8 +1426,8 @@
       "id": 18,
       "gridPos": {
         "h": 9,
-        "w": 18,
-        "x": 6,
+        "w": 24,
+        "x": 0,
         "y": 24
       }
     },
@@ -1519,7 +1447,7 @@
     {
       "type": "timeseries",
       "title": "HDD latency",
-      "description": "Median (filled) and slowest hard drive I/O time; reads up, writes down. A pulling-away slowest line is one bad disk.",
+      "description": "Median (filled) and slowest hard drive I/O time for reads and writes. A pulling-away slowest line is one bad disk.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1560,7 +1488,8 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0
           },
           "unit": "s",
           "thresholds": {
@@ -1622,10 +1551,6 @@
                 }
               },
               {
-                "id": "custom.transform",
-                "value": "negative-Y"
-              },
-              {
                 "id": "custom.fillOpacity",
                 "value": 15
               }
@@ -1643,10 +1568,6 @@
                   "fixedColor": "orange",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "custom.transform",
-                "value": "negative-Y"
               }
             ]
           }
@@ -1729,7 +1650,7 @@
     {
       "type": "timeseries",
       "title": "SSD latency",
-      "description": "Median (filled) and slowest SSD/NVMe I/O time; reads up, writes down. Expect well under 1 ms.",
+      "description": "Median (filled) and slowest SSD/NVMe I/O time for reads and writes. Expect well under 1 ms.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1770,7 +1691,8 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0
           },
           "unit": "s",
           "thresholds": {
@@ -1832,10 +1754,6 @@
                 }
               },
               {
-                "id": "custom.transform",
-                "value": "negative-Y"
-              },
-              {
                 "id": "custom.fillOpacity",
                 "value": 15
               }
@@ -1853,10 +1771,6 @@
                   "fixedColor": "orange",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "custom.transform",
-                "value": "negative-Y"
               }
             ]
           }
@@ -2131,418 +2045,6 @@
     },
     {
       "type": "row",
-      "title": "Memory",
-      "collapsed": false,
-      "panels": [],
-      "id": 22,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 52
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "ARC size vs. target",
-      "description": "ARC size against its target (c), ceiling (c_max) and total RAM. Both dropping together is the kernel reclaiming ARC.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            },
-            "axisSoftMin": 0
-          },
-          "unit": "bytes",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ARC size"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 15
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Target (c)"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "text",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "c_max"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    8,
-                    6
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Total RAM"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    0,
-                    6
-                  ],
-                  "fill": "dot"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "min",
-            "max"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "node_zfs_arc_size{instance=\"$instance\"}",
-          "legendFormat": "ARC size",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "node_zfs_arc_c{instance=\"$instance\"}",
-          "legendFormat": "Target (c)",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "node_zfs_arc_c_max{instance=\"$instance\"}",
-          "legendFormat": "c_max",
-          "range": true,
-          "instant": false,
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "node_zfs_arc_memory_all_bytes{instance=\"$instance\"}",
-          "legendFormat": "Total RAM",
-          "range": true,
-          "instant": false,
-          "refId": "D"
-        }
-      ],
-      "id": 23,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 53
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "RAM headroom",
-      "description": "Free memory as the ARC sees it. Above the dashed line it grows; below zero (red) it shrinks.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "area"
-            },
-            "axisSoftMin": 0
-          },
-          "unit": "bytes",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "rgba(242, 73, 92, 0.18)",
-                "value": null
-              },
-              {
-                "color": "transparent",
-                "value": 0
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Headroom"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Grow threshold"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    8,
-                    6
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "min"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "node_zfs_arc_memory_available_bytes{instance=\"$instance\"}",
-          "legendFormat": "Headroom",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "node_zfs_arc_c{instance=\"$instance\"} / 32",
-          "legendFormat": "Grow threshold",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ],
-      "id": 24,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 53
-      }
-    },
-    {
-      "type": "row",
       "title": "Pools \u00b7 states & dataset space",
       "collapsed": true,
       "panels": [
@@ -2658,10 +2160,10 @@
           ],
           "id": 51,
           "gridPos": {
-            "w": 12,
             "h": 7,
+            "w": 12,
             "x": 0,
-            "y": 62
+            "y": 53
           }
         },
         {
@@ -2736,10 +2238,10 @@
           ],
           "id": 52,
           "gridPos": {
-            "w": 12,
             "h": 7,
+            "w": 12,
             "x": 12,
-            "y": 62
+            "y": 53
           }
         }
       ],
@@ -2748,7 +2250,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 52
       }
     },
     {
@@ -2891,10 +2393,10 @@
           ],
           "id": 42,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 0,
-            "y": 63
+            "y": 54
           }
         },
         {
@@ -3100,10 +2602,10 @@
           ],
           "id": 41,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 8,
-            "y": 63
+            "y": 54
           }
         },
         {
@@ -3179,6 +2681,10 @@
                       "fixedColor": "orange",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -3194,6 +2700,10 @@
                       "fixedColor": "light-orange",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -3209,6 +2719,10 @@
                       "fixedColor": "red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -3224,6 +2738,10 @@
                       "fixedColor": "purple",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -3297,10 +2815,10 @@
           "interval": "5m",
           "id": 27,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 16,
-            "y": 63
+            "y": 54
           }
         }
       ],
@@ -3309,7 +2827,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 53
       }
     },
     {
@@ -3506,10 +3024,10 @@
           ],
           "id": 29,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 0,
-            "y": 64
+            "y": 55
           }
         },
         {
@@ -3805,10 +3323,10 @@
           ],
           "id": 30,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 8,
-            "y": 64
+            "y": 55
           }
         },
         {
@@ -4097,10 +3615,10 @@
           ],
           "id": 37,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 16,
-            "y": 64
+            "y": 55
           }
         },
         {
@@ -4292,10 +3810,10 @@
           ],
           "id": 33,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 0,
-            "y": 73
+            "y": 64
           }
         },
         {
@@ -4409,7 +3927,7 @@
             "h": 9,
             "w": 8,
             "x": 8,
-            "y": 73
+            "y": 64
           }
         },
         {
@@ -4551,7 +4069,7 @@
             "h": 9,
             "w": 8,
             "x": 16,
-            "y": 73
+            "y": 64
           }
         },
         {
@@ -4715,10 +4233,10 @@
           ],
           "id": 34,
           "gridPos": {
-            "w": 10,
             "h": 9,
+            "w": 10,
             "x": 0,
-            "y": 82
+            "y": 73
           }
         },
         {
@@ -4827,7 +4345,7 @@
             "h": 9,
             "w": 4,
             "x": 10,
-            "y": 82
+            "y": 73
           }
         },
         {
@@ -4964,10 +4482,10 @@
           ],
           "id": 46,
           "gridPos": {
-            "w": 10,
             "h": 9,
+            "w": 10,
             "x": 14,
-            "y": 82
+            "y": 73
           }
         },
         {
@@ -5213,10 +4731,10 @@
           ],
           "id": 44,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 0,
-            "y": 91
+            "y": 82
           }
         },
         {
@@ -5445,10 +4963,10 @@
           ],
           "id": 45,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 12,
-            "y": 91
+            "y": 82
           }
         }
       ],
@@ -5457,7 +4975,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 54
       }
     },
     {
@@ -5879,10 +5397,10 @@
             ]
           },
           "gridPos": {
-            "w": 24,
             "h": 21,
+            "w": 24,
             "x": 0,
-            "y": 65
+            "y": 56
           }
         },
         {
@@ -6032,10 +5550,10 @@
           ],
           "id": 62,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 0,
-            "y": 86
+            "y": 77
           }
         },
         {
@@ -6254,10 +5772,10 @@
           ],
           "id": 39,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 12,
-            "y": 86
+            "y": 77
           }
         },
         {
@@ -6395,10 +5913,10 @@
           ],
           "id": 55,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 0,
-            "y": 94
+            "y": 85
           }
         },
         {
@@ -6536,16 +6054,16 @@
           ],
           "id": 56,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 12,
-            "y": 94
+            "y": 85
           }
         },
         {
           "type": "timeseries",
           "title": "HDD request size",
-          "description": "Average request size for hard drives; reads up, writes down. Bigger requests take longer each.",
+          "description": "Average request size for hard drives, reads and writes. Bigger requests take longer each.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -6586,7 +6104,8 @@
                 },
                 "thresholdsStyle": {
                   "mode": "off"
-                }
+                },
+                "axisSoftMin": 0
               },
               "unit": "bytes",
               "thresholds": {
@@ -6627,10 +6146,6 @@
                       "fixedColor": "orange",
                       "mode": "fixed"
                     }
-                  },
-                  {
-                    "id": "custom.transform",
-                    "value": "negative-Y"
                   }
                 ]
               }
@@ -6680,16 +6195,16 @@
           ],
           "id": 53,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 0,
-            "y": 103
+            "y": 94
           }
         },
         {
           "type": "timeseries",
           "title": "SSD request size",
-          "description": "Average request size per SSD/NVMe device; reads up, writes down. Per device, as each serves a different role.",
+          "description": "Average request size per SSD/NVMe device, reads and writes. Per device, as each serves a different role.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -6731,7 +6246,8 @@
                 },
                 "thresholdsStyle": {
                   "mode": "off"
-                }
+                },
+                "axisSoftMin": 0
               },
               "unit": "bytes",
               "thresholds": {
@@ -6763,10 +6279,6 @@
                       "mode": "fixed",
                       "fixedColor": "orange"
                     }
-                  },
-                  {
-                    "id": "custom.transform",
-                    "value": "negative-Y"
                   },
                   {
                     "id": "custom.hideFrom",
@@ -6801,7 +6313,7 @@
               },
               "editorMode": "code",
               "expr": "(rate(node_disk_read_bytes_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) / (rate(node_disk_reads_completed_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) > 0)) * on (instance, device) group_left () node_disk_info{instance=\"$instance\",rotational!=\"1\"}",
-              "legendFormat": "{{device}}",
+              "legendFormat": "{{device}} \u00b7 read",
               "range": true,
               "instant": false,
               "refId": "A"
@@ -6813,7 +6325,7 @@
               },
               "editorMode": "code",
               "expr": "(rate(node_disk_written_bytes_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) / (rate(node_disk_writes_completed_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) > 0)) * on (instance, device) group_left () node_disk_info{instance=\"$instance\",rotational!=\"1\"}",
-              "legendFormat": "{{device}}",
+              "legendFormat": "{{device}} \u00b7 write",
               "range": true,
               "instant": false,
               "refId": "B"
@@ -6821,16 +6333,16 @@
           ],
           "id": 59,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 12,
-            "y": 103
+            "y": 94
           }
         },
         {
           "type": "timeseries",
           "title": "HDD latency by disk",
-          "description": "Average I/O time per hard drive; reads up, writes down.",
+          "description": "Average I/O time per hard drive, reads and writes.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -6872,7 +6384,8 @@
                 },
                 "thresholdsStyle": {
                   "mode": "off"
-                }
+                },
+                "axisSoftMin": 0
               },
               "unit": "s",
               "thresholds": {
@@ -6904,10 +6417,6 @@
                       "mode": "fixed",
                       "fixedColor": "orange"
                     }
-                  },
-                  {
-                    "id": "custom.transform",
-                    "value": "negative-Y"
                   },
                   {
                     "id": "custom.hideFrom",
@@ -6942,7 +6451,7 @@
               },
               "editorMode": "code",
               "expr": "(rate(node_disk_read_time_seconds_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) / (rate(node_disk_reads_completed_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) > 0)) * on (instance, device) group_left () node_disk_info{instance=\"$instance\",rotational=\"1\"}",
-              "legendFormat": "{{device}}",
+              "legendFormat": "{{device}} \u00b7 read",
               "range": true,
               "instant": false,
               "refId": "A"
@@ -6954,7 +6463,7 @@
               },
               "editorMode": "code",
               "expr": "(rate(node_disk_write_time_seconds_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) / (rate(node_disk_writes_completed_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) > 0)) * on (instance, device) group_left () node_disk_info{instance=\"$instance\",rotational=\"1\"}",
-              "legendFormat": "{{device}}",
+              "legendFormat": "{{device}} \u00b7 write",
               "range": true,
               "instant": false,
               "refId": "B"
@@ -6962,16 +6471,16 @@
           ],
           "id": 57,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 0,
-            "y": 112
+            "y": 103
           }
         },
         {
           "type": "timeseries",
           "title": "SSD latency by disk",
-          "description": "Average I/O time per SSD/NVMe device; reads up, writes down.",
+          "description": "Average I/O time per SSD/NVMe device, reads and writes.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -7013,7 +6522,8 @@
                 },
                 "thresholdsStyle": {
                   "mode": "off"
-                }
+                },
+                "axisSoftMin": 0
               },
               "unit": "s",
               "thresholds": {
@@ -7045,10 +6555,6 @@
                       "mode": "fixed",
                       "fixedColor": "orange"
                     }
-                  },
-                  {
-                    "id": "custom.transform",
-                    "value": "negative-Y"
                   },
                   {
                     "id": "custom.hideFrom",
@@ -7083,7 +6589,7 @@
               },
               "editorMode": "code",
               "expr": "(rate(node_disk_read_time_seconds_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) / (rate(node_disk_reads_completed_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) > 0)) * on (instance, device) group_left () node_disk_info{instance=\"$instance\",rotational!=\"1\"}",
-              "legendFormat": "{{device}}",
+              "legendFormat": "{{device}} \u00b7 read",
               "range": true,
               "instant": false,
               "refId": "A"
@@ -7095,7 +6601,7 @@
               },
               "editorMode": "code",
               "expr": "(rate(node_disk_write_time_seconds_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) / (rate(node_disk_writes_completed_total{instance=\"$instance\",device=~\"$disk\"}[$__rate_interval]) > 0)) * on (instance, device) group_left () node_disk_info{instance=\"$instance\",rotational!=\"1\"}",
-              "legendFormat": "{{device}}",
+              "legendFormat": "{{device}} \u00b7 write",
               "range": true,
               "instant": false,
               "refId": "B"
@@ -7103,10 +6609,10 @@
           ],
           "id": 58,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 12,
-            "y": 112
+            "y": 103
           }
         },
         {
@@ -7205,10 +6711,10 @@
           ],
           "id": 60,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 0,
-            "y": 121
+            "y": 112
           }
         },
         {
@@ -7307,10 +6813,10 @@
           ],
           "id": 40,
           "gridPos": {
-            "w": 12,
             "h": 9,
+            "w": 12,
             "x": 12,
-            "y": 121
+            "y": 112
           }
         }
       ],
@@ -7318,7 +6824,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 55
       }
     },
     {
@@ -7326,6 +6832,405 @@
       "id": 63,
       "collapsed": true,
       "panels": [
+        {
+          "type": "timeseries",
+          "title": "ARC size vs. target",
+          "description": "ARC size against its target (c), ceiling (c_max) and total RAM. Both dropping together is the kernel reclaiming ARC.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ARC size"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "purple",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 15
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 2
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Target (c)"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "text",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "c_max"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineStyle",
+                    "value": {
+                      "dash": [
+                        8,
+                        6
+                      ],
+                      "fill": "dash"
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Total RAM"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineStyle",
+                    "value": {
+                      "dash": [
+                        0,
+                        6
+                      ],
+                      "fill": "dot"
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "min",
+                "max"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "node_zfs_arc_size{instance=\"$instance\"}",
+              "legendFormat": "ARC size",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "node_zfs_arc_c{instance=\"$instance\"}",
+              "legendFormat": "Target (c)",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "node_zfs_arc_c_max{instance=\"$instance\"}",
+              "legendFormat": "c_max",
+              "range": true,
+              "instant": false,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "node_zfs_arc_memory_all_bytes{instance=\"$instance\"}",
+              "legendFormat": "Total RAM",
+              "range": true,
+              "instant": false,
+              "refId": "D"
+            }
+          ],
+          "id": 23,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 57
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "RAM headroom",
+          "description": "Free memory as the ARC sees it. Above the dashed line it grows; below zero (red) it shrinks.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "area"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "rgba(242, 73, 92, 0.18)",
+                    "value": null
+                  },
+                  {
+                    "color": "transparent",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Headroom"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "purple",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 2
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Grow threshold"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineStyle",
+                    "value": {
+                      "dash": [
+                        8,
+                        6
+                      ],
+                      "fill": "dash"
+                    }
+                  },
+                  {
+                    "id": "custom.fillOpacity",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "min"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "node_zfs_arc_memory_available_bytes{instance=\"$instance\"}",
+              "legendFormat": "Headroom",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "node_zfs_arc_c{instance=\"$instance\"} / 32",
+              "legendFormat": "Grow threshold",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            }
+          ],
+          "id": 24,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 57
+          }
+        },
         {
           "type": "timeseries",
           "title": "ARC contents by list",
@@ -7568,10 +7473,10 @@
           ],
           "id": 31,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 0,
-            "y": 66
+            "y": 65
           }
         },
         {
@@ -7817,10 +7722,10 @@
           ],
           "id": 35,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 8,
-            "y": 66
+            "y": 65
           }
         },
         {
@@ -8006,10 +7911,10 @@
           ],
           "id": 36,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 16,
-            "y": 66
+            "y": 65
           }
         },
         {
@@ -8228,10 +8133,10 @@
           ],
           "id": 32,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 0,
-            "y": 75
+            "y": 74
           }
         },
         {
@@ -8423,10 +8328,10 @@
           ],
           "id": 48,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 8,
-            "y": 75
+            "y": 74
           }
         },
         {
@@ -8623,10 +8528,10 @@
           ],
           "id": 47,
           "gridPos": {
-            "w": 8,
             "h": 9,
+            "w": 8,
             "x": 16,
-            "y": 75
+            "y": 74
           }
         }
       ],
@@ -8634,9 +8539,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 56
       },
-      "title": "Memory \u00b7 ARC contents & overhead"
+      "title": "Memory \u00b7 ARC size, headroom, contents & overhead"
     }
   ],
   "refresh": "1m",
