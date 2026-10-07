@@ -577,7 +577,7 @@
     {
       "type": "timeseries",
       "title": "Response time per hour",
-      "description": "Median backend response time each hour for the selected routes; streams cannot skew it.",
+      "description": "Median backend response time each hour for the selected routes, including full transfer time for streams.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
