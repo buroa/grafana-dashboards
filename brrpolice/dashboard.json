@@ -90,8 +90,8 @@
   "panels": [
     {
       "type": "stat",
-      "title": "Last poll",
-      "description": "Time since the last poll of qBittorrent (every 10s by default). Over a minute means it's stuck or can't connect.",
+      "title": "Since last poll",
+      "description": "Time since the last successful poll of qBittorrent. Over a minute means it is stuck or cannot connect.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -118,7 +118,7 @@
               }
             ]
           },
-          "unit": "suffix:s ago",
+          "unit": "s",
           "mappings": [],
           "decimals": 0
         },
@@ -170,7 +170,7 @@
     {
       "type": "stat",
       "title": "Errors",
-      "description": "API errors, failed bans, failed prunes and metrics errors in the range. Should be 0.",
+      "description": "API errors, failed bans, failed prunes and metrics errors in the selected range. Should be 0.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -253,8 +253,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "thresholds": {
             "mode": "absolute",
@@ -273,7 +273,7 @@
       },
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -317,7 +317,7 @@
     {
       "type": "stat",
       "title": "Bans applied",
-      "description": "New bans in the range.",
+      "description": "New bans in the selected range.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -325,8 +325,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "thresholds": {
             "mode": "absolute",
@@ -611,7 +611,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "blue",
                   "mode": "fixed"
                 }
               },
@@ -630,7 +630,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "light-orange",
+                  "fixedColor": "light-blue",
                   "mode": "fixed"
                 }
               },
@@ -713,7 +713,7 @@
       "id": 8,
       "gridPos": {
         "h": 8,
-        "w": 14,
+        "w": 12,
         "x": 0,
         "y": 5
       }
@@ -729,8 +729,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "min": 0,
           "unit": "locale",
@@ -782,7 +782,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"64.0\"}[$__range]))",
-          "legendFormat": "< 1 min",
+          "legendFormat": "Up to 64 s",
           "range": false,
           "instant": true,
           "refId": "A"
@@ -794,7 +794,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"128.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"64.0\"}[$__range]))",
-          "legendFormat": "1-2 min",
+          "legendFormat": "64-128 s",
           "range": false,
           "instant": true,
           "refId": "B"
@@ -806,7 +806,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"256.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"128.0\"}[$__range]))",
-          "legendFormat": "2-4 min",
+          "legendFormat": "128-256 s",
           "range": false,
           "instant": true,
           "refId": "C"
@@ -818,7 +818,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"512.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"256.0\"}[$__range]))",
-          "legendFormat": "4-8 min",
+          "legendFormat": "256-512 s",
           "range": false,
           "instant": true,
           "refId": "D"
@@ -830,7 +830,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"1024.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"512.0\"}[$__range]))",
-          "legendFormat": "8-17 min",
+          "legendFormat": "512-1024 s",
           "range": false,
           "instant": true,
           "refId": "E"
@@ -842,7 +842,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"2048.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"1024.0\"}[$__range]))",
-          "legendFormat": "17-34 min",
+          "legendFormat": "1024-2048 s",
           "range": false,
           "instant": true,
           "refId": "F"
@@ -854,7 +854,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"+Inf\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"2048.0\"}[$__range]))",
-          "legendFormat": "> 34 min",
+          "legendFormat": "Over 2048 s",
           "range": false,
           "instant": true,
           "refId": "G"
@@ -863,8 +863,8 @@
       "id": 9,
       "gridPos": {
         "h": 8,
-        "w": 10,
-        "x": 14,
+        "w": 12,
+        "x": 12,
         "y": 5
       }
     },
@@ -1089,7 +1089,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "#c4c4c4",
                   "mode": "fixed"
                 }
               }
@@ -1119,7 +1119,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "light-orange",
+                  "fixedColor": "light-blue",
                   "mode": "fixed"
                 }
               }
@@ -1134,7 +1134,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "super-light-orange",
+                  "fixedColor": "super-light-blue",
                   "mode": "fixed"
                 }
               }
@@ -1149,7 +1149,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "blue",
                   "mode": "fixed"
                 }
               }
@@ -1270,7 +1270,7 @@
     {
       "type": "timeseries",
       "title": "Poll loop time",
-      "description": "Typical poll (line) against the hourly prune (dots), which stalls polling. Dashed is the 2.5 s budget.",
+      "description": "Typical poll (line) against the hourly prune (dots), which delays polling when it runs past the dashed poll interval.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1367,7 +1367,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Prune budget"
+              "options": "Poll interval"
             },
             "properties": [
               {
@@ -1450,8 +1450,8 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "vector(2.5)",
-          "legendFormat": "Prune budget",
+          "expr": "vector($poll_interval)",
+          "legendFormat": "Poll interval",
           "range": true,
           "instant": false,
           "refId": "C"
@@ -1687,6 +1687,10 @@
                       "mode": "fixed",
                       "fixedColor": "red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1702,6 +1706,10 @@
                       "mode": "fixed",
                       "fixedColor": "dark-red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1717,6 +1725,10 @@
                       "mode": "fixed",
                       "fixedColor": "light-red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1732,6 +1744,10 @@
                       "mode": "fixed",
                       "fixedColor": "semi-dark-red"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -2013,8 +2029,8 @@
                   {
                     "id": "color",
                     "value": {
-                      "mode": "fixed",
-                      "fixedColor": "orange"
+                      "fixedColor": "blue",
+                      "mode": "fixed"
                     }
                   },
                   {
@@ -2032,8 +2048,8 @@
                   {
                     "id": "color",
                     "value": {
-                      "mode": "fixed",
-                      "fixedColor": "light-orange"
+                      "fixedColor": "light-blue",
+                      "mode": "fixed"
                     }
                   },
                   {
@@ -2230,6 +2246,26 @@
           }
         ],
         "query": "0.8",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "10",
+          "value": "10"
+        },
+        "description": "qbittorrent.poll_interval in seconds",
+        "hide": 0,
+        "label": "Poll interval",
+        "name": "poll_interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "10",
+            "value": "10"
+          }
+        ],
+        "query": "10",
         "skipUrlSync": false,
         "type": "textbox"
       }

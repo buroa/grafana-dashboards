@@ -107,16 +107,16 @@
   "panels": [
     {
       "type": "stat",
-      "title": "New connections",
-      "description": "Client connections opened in the selected range; each one cost a handshake.",
+      "title": "Timed out",
+      "description": "Requests closed by a header, idle or duration timeout.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "id": 1,
+      "id": 6,
       "gridPos": {
-        "w": 4,
         "h": 4,
+        "w": 4,
         "x": 0,
         "y": 0
       },
@@ -127,7 +127,82 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_cx_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "expr": "sum(increase(envoy_http_downstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_header_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_max_duration_reached{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Cancelled",
+      "description": "Requests clients abandoned mid-response: skipped segments, closed tabs. Normal in moderation.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -187,9 +262,9 @@
       },
       "id": 2,
       "gridPos": {
-        "w": 4,
         "h": 4,
-        "x": 4,
+        "w": 4,
+        "x": 8,
         "y": 0
       },
       "targets": [
@@ -259,9 +334,9 @@
       },
       "id": 3,
       "gridPos": {
-        "w": 4,
         "h": 4,
-        "x": 8,
+        "w": 4,
+        "x": 12,
         "y": 0
       },
       "targets": [
@@ -331,9 +406,9 @@
       },
       "id": 4,
       "gridPos": {
-        "w": 4,
         "h": 4,
-        "x": 12,
+        "w": 4,
+        "x": 16,
         "y": 0
       },
       "targets": [
@@ -395,17 +470,17 @@
     },
     {
       "type": "stat",
-      "title": "Cancelled",
-      "description": "Requests clients abandoned mid-response: skipped segments, closed tabs. Normal in moderation.",
+      "title": "New connections",
+      "description": "Client connections opened in the selected range; each one cost a handshake.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "id": 5,
+      "id": 1,
       "gridPos": {
-        "w": 4,
         "h": 4,
-        "x": 16,
+        "w": 4,
+        "x": 20,
         "y": 0
       },
       "targets": [
@@ -415,7 +490,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
+          "expr": "sum(increase(envoy_http_downstream_cx_total{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -466,19 +541,32 @@
       }
     },
     {
-      "type": "stat",
-      "title": "Timed out",
-      "description": "Requests closed by a header, idle or duration timeout.",
+      "type": "row",
+      "title": "Requests",
+      "collapsed": false,
+      "id": 22,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests in flight",
+      "description": "Requests open at each moment. WebSockets and streams stay open and set the floor.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "id": 6,
+      "id": 10,
       "gridPos": {
-        "w": 4,
-        "h": 4,
-        "x": 20,
-        "y": 0
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
       },
       "targets": [
         {
@@ -487,58 +575,339 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_header_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range])) + sum(increase(envoy_http_downstream_rq_max_duration_reached{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__range]))",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
+          "expr": "sum(envoy_http_downstream_rq_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "In flight",
+          "range": true,
+          "instant": false,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(envoy_http_downstream_cx_upgrades_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
+          "legendFormat": "WebSockets",
+          "range": true,
+          "instant": false,
+          "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0
+          },
+          "unit": "short",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
               }
             ]
           },
-          "unit": "short",
-          "mappings": [],
           "decimals": 0
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "In flight"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WebSockets"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8a8a8a",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "none"
+              }
+            ]
+          }
+        ]
       },
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "value",
-        "wideLayout": true,
-        "text": {
-          "titleSize": 13,
-          "valueSize": 30
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
         }
       }
+    },
+    {
+      "type": "timeseries",
+      "title": "Cancelled and failed requests per hour",
+      "description": "Cancelled: client left. Reset: stream cut, mostly by a backend or WebSocket close. Timeouts and protocol errors are real failures.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
+          "legendFormat": "Cancelled by client",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_tx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
+          "legendFormat": "Reset by Envoy",
+          "range": true,
+          "instant": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval)) + sum(increase(envoy_http_downstream_rq_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval)) + sum(increase(envoy_http_downstream_rq_header_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval)) + sum(increase(envoy_http_downstream_rq_max_duration_reached{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
+          "legendFormat": "Timed out",
+          "range": true,
+          "instant": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(envoy_http_downstream_cx_protocol_error{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
+          "legendFormat": "Protocol errors",
+          "range": true,
+          "instant": false,
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 1,
+            "barWidthFactor": 0.8,
+            "drawStyle": "bars",
+            "fillOpacity": 85,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cancelled by client"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8a8a8a",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reset by Envoy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Timed out"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Protocol errors"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "interval": "1h"
     },
     {
       "type": "row",
@@ -546,10 +915,10 @@
       "collapsed": false,
       "id": 21,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 4
+        "y": 13
       },
       "panels": []
     },
@@ -563,10 +932,10 @@
       },
       "id": 7,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 0,
-        "y": 5
+        "y": 14
       },
       "targets": [
         {
@@ -729,10 +1098,10 @@
       },
       "id": 8,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 12,
-        "y": 5
+        "y": 14
       },
       "targets": [
         {
@@ -891,369 +1260,12 @@
     },
     {
       "type": "row",
-      "title": "Requests",
-      "collapsed": false,
-      "id": 22,
-      "gridPos": {
-        "w": 24,
-        "h": 1,
-        "x": 0,
-        "y": 13
-      },
-      "panels": []
-    },
-    {
-      "type": "timeseries",
-      "title": "Requests in flight",
-      "description": "Requests open at each moment. WebSockets and streams stay open and set the floor.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "id": 10,
-      "gridPos": {
-        "w": 12,
-        "h": 8,
-        "x": 0,
-        "y": 14
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(envoy_http_downstream_rq_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
-          "legendFormat": "In flight",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(envoy_http_downstream_cx_upgrades_active{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"})",
-          "legendFormat": "WebSockets",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.8,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            },
-            "axisSoftMin": 0
-          },
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "decimals": 0
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "In flight"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "WebSockets"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "custom.gradientMode",
-                "value": "none"
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Cancelled and failed requests per hour",
-      "description": "Cancelled: client left. Reset: stream cut, mostly by a backend or WebSocket close. Timeouts and protocol errors are real failures.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "id": 11,
-      "gridPos": {
-        "w": 12,
-        "h": 8,
-        "x": 12,
-        "y": 14
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_rq_rx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
-          "legendFormat": "Cancelled by client",
-          "range": true,
-          "instant": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_rq_tx_reset{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
-          "legendFormat": "Reset by Envoy",
-          "range": true,
-          "instant": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_rq_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval)) + sum(increase(envoy_http_downstream_rq_idle_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval)) + sum(increase(envoy_http_downstream_rq_header_timeout{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval)) + sum(increase(envoy_http_downstream_rq_max_duration_reached{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
-          "legendFormat": "Timed out",
-          "range": true,
-          "instant": false,
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(envoy_http_downstream_cx_protocol_error{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_http_conn_manager_prefix!~\"admin|eg-.+\"}[$__interval] offset -$__interval))",
-          "legendFormat": "Protocol errors",
-          "range": true,
-          "instant": false,
-          "refId": "D"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 1,
-            "barWidthFactor": 0.8,
-            "drawStyle": "bars",
-            "fillOpacity": 85,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 4,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            },
-            "axisSoftMin": 0,
-            "axisSoftMax": 1
-          },
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "decimals": 0
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Cancelled by client"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Reset by Envoy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Timed out"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Protocol errors"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "sum"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": true,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "interval": "1h"
-    },
-    {
-      "type": "row",
       "title": "Connections \u00b7 lifetime, closes & TLS",
       "collapsed": true,
       "id": 23,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 22
       },
@@ -1268,8 +1280,8 @@
           },
           "id": 9,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 0,
             "y": 23
           },
@@ -1396,8 +1408,8 @@
           },
           "id": 13,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 8,
             "y": 23
           },
@@ -1534,6 +1546,10 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -1559,15 +1575,15 @@
         {
           "type": "stat",
           "title": "TLS",
-          "description": "Days until the served certificate expires (short-lived certs renew with about two left), then handshakes in the range.",
+          "description": "Days until the served certificate expires (short-lived certs renew with about two left), then handshakes in the selected range.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "id": 14,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 16,
             "y": 23
           },
@@ -1780,8 +1796,8 @@
       "collapsed": true,
       "id": 24,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 23
       },
@@ -1796,8 +1812,8 @@
           },
           "id": 12,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 0,
             "y": 24
           },
@@ -1946,6 +1962,10 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -1961,6 +1981,10 @@
                       "fixedColor": "light-yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -1993,8 +2017,8 @@
           },
           "id": 15,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 12,
             "y": 24
           },
@@ -2168,8 +2192,8 @@
       "collapsed": true,
       "id": 25,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 24
       },
@@ -2184,8 +2208,8 @@
           },
           "id": 16,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 0,
             "y": 25
           },
@@ -2325,8 +2349,8 @@
           },
           "id": 17,
           "gridPos": {
-            "w": 12,
             "h": 8,
+            "w": 12,
             "x": 12,
             "y": 25
           },
@@ -2490,6 +2514,10 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -2520,8 +2548,8 @@
       "collapsed": true,
       "id": 26,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 25
       },
@@ -2536,8 +2564,8 @@
           },
           "id": 18,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 0,
             "y": 26
           },
@@ -2633,6 +2661,10 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }
@@ -2665,8 +2697,8 @@
           },
           "id": 19,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 8,
             "y": 26
           },
@@ -2677,7 +2709,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(envoy_listener_udp_downstream_rx_datagram_dropped{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval] offset -$__interval))",
+              "expr": "sum(increase(envoy_listener_udp_downstream_rx_datagram_dropped{pod=~\"$gateway-[a-z0-9]+-[a-z0-9]+\",envoy_listener_address!~\".+_(19001|19003)\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "Dropped",
               "range": true,
               "instant": false,
@@ -2735,7 +2767,8 @@
                   }
                 ]
               },
-              "decimals": 0
+              "decimals": 0,
+              "noValue": "None dropped"
             },
             "overrides": []
           },
@@ -2766,8 +2799,8 @@
           },
           "id": 20,
           "gridPos": {
-            "w": 8,
             "h": 8,
+            "w": 8,
             "x": 16,
             "y": 26
           },
@@ -2899,6 +2932,10 @@
                       "fixedColor": "red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -2914,6 +2951,10 @@
                       "fixedColor": "dark-red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -2929,6 +2970,10 @@
                       "fixedColor": "yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -2944,6 +2989,10 @@
                       "fixedColor": "light-red",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               },
@@ -2959,6 +3008,10 @@
                       "fixedColor": "light-yellow",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
                   }
                 ]
               }

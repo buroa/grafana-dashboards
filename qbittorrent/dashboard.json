@@ -61,7 +61,7 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "enable": false,
+        "enable": true,
         "hide": true,
         "iconColor": "#8a8a8a",
         "name": "qBittorrent restart",
@@ -908,7 +908,7 @@
     {
       "type": "table",
       "title": "Totals by tracker",
-      "description": "Per tracker over the range; removed torrents don't count. Ratio is lifetime for current torrents (\u221e = none downloaded).",
+      "description": "Per tracker over the selected range; removed torrents don't count. Ratio is lifetime for current torrents (\u221e = none downloaded).",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1263,19 +1263,19 @@
               },
               {
                 "color": "#5a3613",
-                "value": 1
+                "value": 0.2
               },
               {
                 "color": "#985716",
-                "value": 10
+                "value": 2
               },
               {
                 "color": "#e0791f",
-                "value": 30
+                "value": 10
               },
               {
                 "color": "#ffb35c",
-                "value": 60
+                "value": 30
               }
             ]
           },
@@ -1354,19 +1354,19 @@
               },
               {
                 "color": "#1c3458",
-                "value": 1
+                "value": 0.2
               },
               {
                 "color": "#2c5b9c",
-                "value": 10
+                "value": 2
               },
               {
                 "color": "#4c8be3",
-                "value": 30
+                "value": 10
               },
               {
                 "color": "#9cc4ff",
-                "value": 60
+                "value": 30
               }
             ]
           },

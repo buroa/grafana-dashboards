@@ -8,7 +8,7 @@ The client side of Envoy Gateway: connections by protocol, requests in flight, c
 
 ## Overview
 
-Everything between clients and Envoy. The top row shows new connections, connection reuse, the HTTP/2 and HTTP/3 share, compression savings, and requests cancelled by clients or timed out. Below it, open connections by protocol and requests in flight against cancelled and failed requests.
+Everything between clients and Envoy. The top row shows requests timed out or cancelled by clients, connection reuse, the HTTP/2 and HTTP/3 share, compression savings and new connections. Below it, requests in flight against cancelled and failed requests, then open connections by protocol and new connections per hour.
 
 Collapsed rows:
 - **Connections · lifetime, closes & TLS:** how long client connections live, who closes them and why, certificate expiry and TLS handshakes.

@@ -95,7 +95,7 @@
       }
     ]
   },
-  "description": "autobrr: IRC status, announces by network, and releases matched, grabbed and rejected. The collapsed rows hold network outages, runtime and setup.",
+  "description": "autobrr: IRC status, announces by network, and releases matched, grabbed and rejected. The collapsed rows hold rejected pushes, network outages, runtime and setup.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -603,8 +603,8 @@
     },
     {
       "type": "timeseries",
-      "title": "Pushes per hour",
-      "description": "Pushes each hour by outcome: grabbed, rejected by the arr or the action's checks, or failed with an error.",
+      "title": "Grabs and errors per hour",
+      "description": "Pushes each hour that the arr or download client took, and pushes that failed with an error.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -678,25 +678,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Rejected"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Errors"
             },
             "properties": [
@@ -742,18 +723,6 @@
           "range": true,
           "instant": false,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
-          "legendFormat": "Rejected",
-          "range": true,
-          "instant": false,
-          "refId": "B"
         },
         {
           "datasource": {
@@ -1015,8 +984,16 @@
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "green",
                 "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 900
+              },
+              {
+                "color": "red",
+                "value": 3600
               }
             ]
           }
@@ -1073,6 +1050,138 @@
       }
     },
     {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 25,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Rejections per hour",
+          "description": "Pushes each hour that the arr or the action's checks rejected, usually releases it already has.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 1,
+                "barWidthFactor": 0.75,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "locale",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Rejected"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
+              "legendFormat": "Rejected",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            }
+          ],
+          "interval": "1h",
+          "id": 24,
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 27
+          }
+        }
+      ],
+      "title": "Releases \u00b7 rejected pushes",
+      "type": "row"
+    },
+    {
       "type": "row",
       "title": "Announces \u00b7 network outages",
       "collapsed": true,
@@ -1081,7 +1190,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 27
       },
       "panels": [
         {
@@ -1179,7 +1288,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 27
+            "y": 28
           }
         },
         {
@@ -1262,7 +1371,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 27
+            "y": 28
           }
         }
       ]
@@ -1276,7 +1385,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 28
       },
       "panels": [
         {
@@ -1372,7 +1481,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 28
+            "y": 29
           }
         },
         {
@@ -1468,7 +1577,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 28
+            "y": 29
           }
         },
         {
@@ -1565,7 +1674,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 28
+            "y": 29
           }
         }
       ]
@@ -1579,7 +1688,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "panels": [
         {
@@ -1761,7 +1870,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 29
+            "y": 30
           }
         },
         {
@@ -1844,7 +1953,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 29
+            "y": 30
           }
         },
         {
@@ -1927,7 +2036,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 29
+            "y": 30
           }
         }
       ]

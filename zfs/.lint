@@ -13,4 +13,3 @@ exclusions:
     entries:
       - panel: Busiest datasets
       - panel: Cache hits
-      - panel: Hit rate by tier
