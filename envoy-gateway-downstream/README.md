@@ -20,6 +20,7 @@ Companion dashboards: **Envoy Gateway / Overview** and **Envoy Gateway / Upstrea
 
 ## Requirements
 - Envoy proxy metrics (`envoy_http_*`, `envoy_listener_*`, `envoy_server_*`) scraped from the Envoy Gateway proxy pods, with a `pod` label.
+- Prometheus 2.33 or later, for negative offsets.
 
 ## Collapsed rows
 

@@ -18,6 +18,7 @@ Companion dashboards: **Envoy Gateway / Downstream** (client side) and **Envoy G
 
 ## Requirements
 - Envoy proxy metrics (`envoy_*`) scraped from the Envoy Gateway proxy pods, with a `pod` label.
+- Prometheus 2.33 or later, for negative offsets.
 - cAdvisor `container_cpu_*` and `container_memory_*` for the CPU and memory panels.
 
 ## Collapsed rows
