@@ -14,6 +14,7 @@ Tracker traffic is filtered so removed torrents don't count. The collapsed **Lib
 
 ## Requirements
 - qui with metrics enabled (`qbittorrent_*`, `qui_*`) scraped by Prometheus.
+- Prometheus 2.33 or later, for negative offsets.
 - `instance_name` and `tracker` variables select instances and trackers.
 
 ## Collapsed rows

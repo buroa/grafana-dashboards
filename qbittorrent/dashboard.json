@@ -766,7 +766,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": 1,
             "barWidthFactor": 0.7,
             "drawStyle": "bars",
             "fillOpacity": 85,
@@ -863,7 +863,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(sum_over_time((max by (instance_name) (clamp_min(qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} offset 1m, 0)))[1d:1m]))",
+          "expr": "sum(sum_over_time((max by (instance_name) (clamp_min(qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} offset 1m, 0)))[1d:1m] offset -1d))",
           "legendFormat": "Uploaded",
           "range": true,
           "instant": false,
@@ -875,7 +875,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(sum_over_time((max by (instance_name) (clamp_min(qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} offset 1m, 0)))[1d:1m]))",
+          "expr": "sum(sum_over_time((max by (instance_name) (clamp_min(qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} offset 1m, 0)))[1d:1m] offset -1d))",
           "legendFormat": "Downloaded",
           "range": true,
           "instant": false,
@@ -1313,7 +1313,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "(sum by (tracker_name) (sum_over_time((max by (instance_name, tracker_name) (\n  clamp_min(qbittorrent_tracker_uploaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} - qbittorrent_tracker_uploaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} offset 1m, 0)\n  <= on (instance, instance_name) group_left ()\n  (clamp_min(qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} offset 1m, 0) * 1.5 + 1e8)\n))[$__interval:1m])))",
+          "expr": "(sum by (tracker_name) (sum_over_time((max by (instance_name, tracker_name) (\n  clamp_min(qbittorrent_tracker_uploaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} - qbittorrent_tracker_uploaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} offset 1m, 0)\n  <= on (instance, instance_name) group_left ()\n  (clamp_min(qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_upload_bytes{instance_name=~\"$instance_name\"} offset 1m, 0) * 1.5 + 1e8)\n))[$__interval:1m] offset -$__interval)))",
           "legendFormat": "{{tracker_name}}",
           "range": true,
           "instant": false,
@@ -1404,7 +1404,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "(sum by (tracker_name) (sum_over_time((max by (instance_name, tracker_name) (\n  clamp_min(qbittorrent_tracker_downloaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} - qbittorrent_tracker_downloaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} offset 1m, 0)\n  <= on (instance, instance_name) group_left ()\n  (clamp_min(qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} offset 1m, 0) * 1.5 + 1e8)\n))[$__interval:1m])))",
+          "expr": "(sum by (tracker_name) (sum_over_time((max by (instance_name, tracker_name) (\n  clamp_min(qbittorrent_tracker_downloaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} - qbittorrent_tracker_downloaded_bytes{instance_name=~\"$instance_name\",tracker_name=~\"$tracker\"} offset 1m, 0)\n  <= on (instance, instance_name) group_left ()\n  (clamp_min(qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} - qbittorrent_session_download_bytes{instance_name=~\"$instance_name\"} offset 1m, 0) * 1.5 + 1e8)\n))[$__interval:1m] offset -$__interval)))",
           "legendFormat": "{{tracker_name}}",
           "range": true,
           "instant": false,
