@@ -61,7 +61,7 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "enable": false,
+        "enable": true,
         "hide": true,
         "iconColor": "#8a8a8a",
         "name": "qBittorrent restart",
@@ -908,7 +908,7 @@
     {
       "type": "table",
       "title": "Totals by tracker",
-      "description": "Per tracker over the range; removed torrents don't count. Ratio is lifetime for current torrents (\u221e = none downloaded).",
+      "description": "Per tracker over the selected range; removed torrents don't count. Ratio is lifetime for current torrents (\u221e = none downloaded).",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
