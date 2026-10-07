@@ -26,7 +26,7 @@ Notes:
 - Prometheus 2.33 or later, for negative offsets.
 - Push endpoints only report a missed push when `heartbeat.interval` is set.
 - Domain expiry needs a `[DOMAIN_EXPIRATION]` condition on an endpoint.
-- The `group` and `endpoint` variables filter every panel; clicking an endpoint in **Failures by endpoint**, **Response time by endpoint** or **Ongoing outages** selects it.
+- The `group` and `endpoint` variables filter the endpoint panels; Runtime stays deployment-wide. Clicking an endpoint in **Failures by endpoint**, **Response time by endpoint** or **Ongoing outages** selects it.
 
 ## Collapsed rows
 

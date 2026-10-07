@@ -1,7 +1,7 @@
 ---
 exclusions:
   template-job-rule:
-    reason: The job variable has no All value; ".+" would also sum the process metrics of every other job.
+    reason: All expands to the discovered Gatus jobs; a custom ".+" value would also sum process metrics from unrelated jobs.
   template-instance-rule:
     reason: Replicas are always aggregated per Gatus deployment.
   target-instance-rule:
