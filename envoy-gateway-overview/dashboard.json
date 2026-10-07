@@ -526,7 +526,7 @@
     {
       "type": "stat",
       "title": "Connections",
-      "description": "Client connections open now, with their trend.",
+      "description": "Client connections open now.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
