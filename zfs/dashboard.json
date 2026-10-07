@@ -606,7 +606,7 @@
     {
       "type": "stat",
       "title": "ARC size",
-      "description": "RAM held by the ARC. A sudden drop is the ARC shrinking under memory pressure.",
+      "description": "RAM held by the ARC now. It shrinks under memory pressure.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
