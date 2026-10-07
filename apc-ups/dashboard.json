@@ -87,7 +87,7 @@
       }
     ]
   },
-  "description": "An APC UPS over SNMP: protection status, power drawn against capacity, input quality and battery health. Collapsed rows hold daily energy, readings, power events, runtime and charge.",
+  "description": "An APC UPS over SNMP: protection status, power drawn against capacity, input quality and battery health. Collapsed rows hold daily energy, readings, power events, the battery record, charge and voltage.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -656,8 +656,8 @@
       "collapsed": false,
       "id": 16,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 4
       },
@@ -665,7 +665,7 @@
     },
     {
       "type": "timeseries",
-      "title": "Power",
+      "title": "Power and capacity",
       "description": "Real power the equipment draws against what the UPS can deliver (dashed, derived from load %). The gap is headroom.",
       "datasource": {
         "type": "prometheus",
@@ -673,8 +673,8 @@
       },
       "id": 7,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 0,
         "y": 5
       },
@@ -840,8 +840,8 @@
       },
       "id": 8,
       "gridPos": {
-        "w": 12,
         "h": 8,
+        "w": 12,
         "x": 12,
         "y": 5
       },
@@ -990,267 +990,12 @@
       "collapsed": false,
       "id": 17,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
         "y": 13
       },
       "panels": []
-    },
-    {
-      "type": "table",
-      "title": "Battery record",
-      "description": "What the UPS stores about its battery. Last transfer is why it last ran on battery.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "id": 10,
-      "gridPos": {
-        "w": 8,
-        "h": 9,
-        "x": 0,
-        "y": 14
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "max by (instance, upsAdvBatteryInternalSKU) (upsAdvBatteryInternalSKU{instance=~\"$ups\"}) * on (instance) group_left (upsBasicBatteryLastReplaceDate) max by (instance, upsBasicBatteryLastReplaceDate) (upsBasicBatteryLastReplaceDate{instance=~\"$ups\"}) * on (instance) group_left (upsAdvBatteryRecommendedReplaceDate) max by (instance, upsAdvBatteryRecommendedReplaceDate) (upsAdvBatteryRecommendedReplaceDate{instance=~\"$ups\"}) * on (instance) group_left (upsAdvTestLastDiagnosticsDate) max by (instance, upsAdvTestLastDiagnosticsDate) (upsAdvTestLastDiagnosticsDate{instance=~\"$ups\"}) * on (instance) group_left (upsAdvTestDiagnosticsResults) max by (instance, upsAdvTestDiagnosticsResults) (upsAdvTestDiagnosticsResults_info{instance=~\"$ups\"}) * on (instance) group_left (upsAdvTestCalibrationResults) max by (instance, upsAdvTestCalibrationResults) (upsAdvTestCalibrationResults_info{instance=~\"$ups\"}) * on (instance) group_left (upsAdvInputLineFailCause) max by (instance, upsAdvInputLineFailCause) (upsAdvInputLineFailCause{instance=~\"$ups\"} == 1)",
-          "legendFormat": "",
-          "range": false,
-          "instant": true,
-          "format": "table",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "text",
-                "value": null
-              }
-            ]
-          },
-          "fieldMinMax": true,
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "custom.align",
-                "value": "right"
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "type": "value",
-                    "options": {
-                      "ok": {
-                        "text": "passed",
-                        "color": "text",
-                        "index": 0
-                      },
-                      "failed": {
-                        "text": "FAILED",
-                        "color": "red",
-                        "index": 1
-                      },
-                      "invalidTest": {
-                        "text": "invalid",
-                        "color": "yellow",
-                        "index": 2
-                      },
-                      "testInProgress": {
-                        "text": "running",
-                        "color": "blue",
-                        "index": 3
-                      },
-                      "invalidCalibration": {
-                        "text": "not valid",
-                        "color": "yellow",
-                        "index": 4
-                      },
-                      "calibrationInProgress": {
-                        "text": "running",
-                        "color": "blue",
-                        "index": 5
-                      },
-                      "noTransfer": {
-                        "text": "none",
-                        "color": "text",
-                        "index": 6
-                      },
-                      "highLineVoltage": {
-                        "text": "high voltage",
-                        "color": "text",
-                        "index": 7
-                      },
-                      "brownout": {
-                        "text": "brownout",
-                        "color": "text",
-                        "index": 8
-                      },
-                      "blackout": {
-                        "text": "blackout",
-                        "color": "text",
-                        "index": 9
-                      },
-                      "smallMomentarySag": {
-                        "text": "small sag",
-                        "color": "text",
-                        "index": 10
-                      },
-                      "deepMomentarySag": {
-                        "text": "deep sag",
-                        "color": "text",
-                        "index": 11
-                      },
-                      "smallMomentarySpike": {
-                        "text": "small spike",
-                        "color": "text",
-                        "index": 12
-                      },
-                      "largeMomentarySpike": {
-                        "text": "large spike",
-                        "color": "text",
-                        "index": 13
-                      },
-                      "selfTest": {
-                        "text": "self-test",
-                        "color": "text",
-                        "index": 14
-                      },
-                      "rateOfVoltageChange": {
-                        "text": "voltage swing",
-                        "color": "text",
-                        "index": 15
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Field"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8a8a8a",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": false,
-        "sortBy": []
-      },
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "instance": true
-            },
-            "indexByName": {
-              "Value": 0,
-              "upsAdvBatteryInternalSKU": 1,
-              "upsBasicBatteryLastReplaceDate": 2,
-              "upsAdvBatteryRecommendedReplaceDate": 3,
-              "upsAdvTestLastDiagnosticsDate": 4,
-              "upsAdvTestDiagnosticsResults": 5,
-              "upsAdvTestCalibrationResults": 6,
-              "upsAdvInputLineFailCause": 7
-            },
-            "renameByName": {
-              "upsAdvBatteryInternalSKU": "Battery",
-              "upsBasicBatteryLastReplaceDate": "Installed",
-              "upsAdvBatteryRecommendedReplaceDate": "Replace by",
-              "upsAdvTestLastDiagnosticsDate": "Last self-test",
-              "upsAdvTestDiagnosticsResults": "Self-test result",
-              "upsAdvTestCalibrationResults": "Runtime calibration",
-              "upsAdvInputLineFailCause": "Last transfer"
-            }
-          }
-        },
-        {
-          "id": "transpose",
-          "options": {
-            "firstFieldName": "Field",
-            "restFieldsName": "Value"
-          }
-        },
-        {
-          "id": "filterByValue",
-          "options": {
-            "filters": [
-              {
-                "fieldName": "Field",
-                "config": {
-                  "id": "regex",
-                  "options": {
-                    "value": "^Value$"
-                  }
-                }
-              }
-            ],
-            "match": "any",
-            "type": "exclude"
-          }
-        }
-      ]
     },
     {
       "type": "timeseries",
@@ -1262,9 +1007,9 @@
       },
       "id": 9,
       "gridPos": {
-        "w": 16,
-        "h": 9,
-        "x": 8,
+        "h": 8,
+        "w": 12,
+        "x": 0,
         "y": 14
       },
       "targets": [
@@ -1349,31 +1094,127 @@
       }
     },
     {
+      "type": "timeseries",
+      "title": "Battery runtime",
+      "description": "Battery runtime at each moment's load; it falls as load rises.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (upsAdvBatteryRunTimeRemaining_seconds{instance=~\"$ups\"})",
+          "legendFormat": "Runtime",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#4fb3bf"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisSoftMin": 0
+          },
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
       "type": "row",
       "title": "Power \u00b7 energy, readings & events",
       "collapsed": true,
       "id": 18,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "panels": [
         {
           "type": "timeseries",
           "title": "Energy per day",
-          "description": "Energy the equipment used each day over the last week, whatever range is selected.",
+          "description": "Energy the equipment used each day over the last two weeks, whatever range is selected.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
           "id": 13,
           "gridPos": {
-            "w": 16,
             "h": 10,
+            "w": 16,
             "x": 0,
-            "y": 24
+            "y": 23
           },
           "targets": [
             {
@@ -1459,7 +1300,7 @@
             }
           },
           "interval": "1d",
-          "timeFrom": "7d"
+          "timeFrom": "14d"
         },
         {
           "type": "stat",
@@ -1471,10 +1312,10 @@
           },
           "id": 12,
           "gridPos": {
-            "w": 8,
             "h": 10,
+            "w": 8,
             "x": 16,
-            "y": 24
+            "y": 23
           },
           "targets": [
             {
@@ -1691,10 +1532,10 @@
           },
           "id": 11,
           "gridPos": {
-            "w": 24,
             "h": 4,
+            "w": 24,
             "x": 0,
-            "y": 34
+            "y": 33
           },
           "targets": [
             {
@@ -1818,30 +1659,30 @@
     },
     {
       "type": "row",
-      "title": "Battery \u00b7 runtime & charge",
+      "title": "Battery \u00b7 record, charge & voltage",
       "collapsed": true,
       "id": 19,
       "gridPos": {
-        "w": 24,
         "h": 1,
+        "w": 24,
         "x": 0,
-        "y": 24
+        "y": 23
       },
       "panels": [
         {
-          "type": "timeseries",
-          "title": "Battery runtime",
-          "description": "Battery runtime at each moment's load; it falls as load rises.",
+          "type": "table",
+          "title": "Battery record",
+          "description": "What the UPS stores about its battery. Last transfer is why it last ran on battery.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "id": 14,
+          "id": 10,
           "gridPos": {
-            "w": 12,
-            "h": 8,
+            "h": 9,
+            "w": 8,
             "x": 0,
-            "y": 25
+            "y": 24
           },
           "targets": [
             {
@@ -1850,79 +1691,238 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "max by (instance) (upsAdvBatteryRunTimeRemaining_seconds{instance=~\"$ups\"})",
-              "legendFormat": "Runtime",
-              "range": true,
-              "instant": false,
+              "expr": "max by (instance, upsAdvBatteryInternalSKU) (upsAdvBatteryInternalSKU{instance=~\"$ups\"}) * on (instance) group_left (upsBasicBatteryLastReplaceDate) max by (instance, upsBasicBatteryLastReplaceDate) (upsBasicBatteryLastReplaceDate{instance=~\"$ups\"}) * on (instance) group_left (upsAdvBatteryRecommendedReplaceDate) max by (instance, upsAdvBatteryRecommendedReplaceDate) (upsAdvBatteryRecommendedReplaceDate{instance=~\"$ups\"}) * on (instance) group_left (upsAdvTestLastDiagnosticsDate) max by (instance, upsAdvTestLastDiagnosticsDate) (upsAdvTestLastDiagnosticsDate{instance=~\"$ups\"}) * on (instance) group_left (upsAdvTestDiagnosticsResults) max by (instance, upsAdvTestDiagnosticsResults) (upsAdvTestDiagnosticsResults_info{instance=~\"$ups\"}) * on (instance) group_left (upsAdvTestCalibrationResults) max by (instance, upsAdvTestCalibrationResults) (upsAdvTestCalibrationResults_info{instance=~\"$ups\"}) * on (instance) group_left (upsAdvInputLineFailCause) max by (instance, upsAdvInputLineFailCause) (upsAdvInputLineFailCause{instance=~\"$ups\"} == 1)",
+              "legendFormat": "",
+              "range": false,
+              "instant": true,
+              "format": "table",
               "refId": "A"
             }
           ],
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "fixed",
-                "fixedColor": "#4fb3bf"
+                "mode": "thresholds"
               },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.8,
-                "drawStyle": "line",
-                "fillOpacity": 15,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 4,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                },
-                "axisSoftMin": 0
-              },
-              "unit": "s",
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
+                    "color": "text",
                     "value": null
                   }
                 ]
+              },
+              "fieldMinMax": true,
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false,
+                "inspect": false
               }
             },
-            "overrides": []
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "custom.align",
+                    "value": "right"
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "ok": {
+                            "text": "passed",
+                            "color": "text",
+                            "index": 0
+                          },
+                          "failed": {
+                            "text": "FAILED",
+                            "color": "red",
+                            "index": 1
+                          },
+                          "invalidTest": {
+                            "text": "invalid",
+                            "color": "yellow",
+                            "index": 2
+                          },
+                          "testInProgress": {
+                            "text": "running",
+                            "color": "blue",
+                            "index": 3
+                          },
+                          "invalidCalibration": {
+                            "text": "not valid",
+                            "color": "yellow",
+                            "index": 4
+                          },
+                          "calibrationInProgress": {
+                            "text": "running",
+                            "color": "blue",
+                            "index": 5
+                          },
+                          "noTransfer": {
+                            "text": "none",
+                            "color": "text",
+                            "index": 6
+                          },
+                          "highLineVoltage": {
+                            "text": "high voltage",
+                            "color": "text",
+                            "index": 7
+                          },
+                          "brownout": {
+                            "text": "brownout",
+                            "color": "text",
+                            "index": 8
+                          },
+                          "blackout": {
+                            "text": "blackout",
+                            "color": "text",
+                            "index": 9
+                          },
+                          "smallMomentarySag": {
+                            "text": "small sag",
+                            "color": "text",
+                            "index": 10
+                          },
+                          "deepMomentarySag": {
+                            "text": "deep sag",
+                            "color": "text",
+                            "index": 11
+                          },
+                          "smallMomentarySpike": {
+                            "text": "small spike",
+                            "color": "text",
+                            "index": 12
+                          },
+                          "largeMomentarySpike": {
+                            "text": "large spike",
+                            "color": "text",
+                            "index": 13
+                          },
+                          "selfTest": {
+                            "text": "self-test",
+                            "color": "text",
+                            "index": 14
+                          },
+                          "rateOfVoltageChange": {
+                            "text": "voltage swing",
+                            "color": "text",
+                            "index": 15
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Field"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#8a8a8a",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              }
+            ]
           },
           "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
             },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "desc"
+            "showHeader": false,
+            "sortBy": []
+          },
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "instance": true
+                },
+                "indexByName": {
+                  "Value": 0,
+                  "upsAdvBatteryInternalSKU": 1,
+                  "upsBasicBatteryLastReplaceDate": 2,
+                  "upsAdvBatteryRecommendedReplaceDate": 3,
+                  "upsAdvTestLastDiagnosticsDate": 4,
+                  "upsAdvTestDiagnosticsResults": 5,
+                  "upsAdvTestCalibrationResults": 6,
+                  "upsAdvInputLineFailCause": 7
+                },
+                "renameByName": {
+                  "upsAdvBatteryInternalSKU": "Battery",
+                  "upsBasicBatteryLastReplaceDate": "Installed",
+                  "upsAdvBatteryRecommendedReplaceDate": "Replace by",
+                  "upsAdvTestLastDiagnosticsDate": "Last self-test",
+                  "upsAdvTestDiagnosticsResults": "Self-test result",
+                  "upsAdvTestCalibrationResults": "Runtime calibration",
+                  "upsAdvInputLineFailCause": "Last transfer"
+                }
+              }
+            },
+            {
+              "id": "transpose",
+              "options": {
+                "firstFieldName": "Field",
+                "restFieldsName": "Value"
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "fieldName": "Field",
+                    "config": {
+                      "id": "regex",
+                      "options": {
+                        "value": "^Value$"
+                      }
+                    }
+                  }
+                ],
+                "match": "any",
+                "type": "exclude"
+              }
             }
-          }
+          ]
         },
         {
           "type": "timeseries",
@@ -1934,10 +1934,10 @@
           },
           "id": 15,
           "gridPos": {
-            "w": 12,
-            "h": 8,
-            "x": 12,
-            "y": 25
+            "h": 9,
+            "w": 8,
+            "x": 8,
+            "y": 24
           },
           "targets": [
             {
@@ -2005,6 +2005,103 @@
               },
               "min": 0,
               "max": 100
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Battery voltage",
+          "description": "Voltage at the battery terminals. A float voltage that sags over months is a cell on its way out.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 20,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 16,
+            "y": 24
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "max by (instance) (upsHighPrecBatteryActualVoltage{instance=~\"$ups\"})",
+              "legendFormat": "Voltage",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#4fb3bf"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "volt",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 1
             },
             "overrides": []
           },

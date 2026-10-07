@@ -8,11 +8,11 @@ APC UPS over SNMP: protection status, load against capacity, input quality, batt
 
 ## Overview
 
-The top row answers "am I protected?": output status, battery state, load, estimated runtime, input voltage and energy used. Below it, power drawn against what the UPS can deliver, input voltage, the battery record (replace flag, self-test result, last transfer reason) and battery temperature.
+The top row answers "am I protected?": output status, battery state, load, estimated runtime, input voltage and energy used. Below it, power drawn against what the UPS can deliver, input voltage, battery temperature and battery runtime.
 
 Collapsed rows:
 - **Power · energy, readings & events:** energy per day, power readings and events (pass-through, input correction, self-test, on battery).
-- **Battery · runtime & charge:** runtime estimate and charge over time.
+- **Battery · record, charge & voltage:** the battery record (replace flag, self-test result, last transfer reason), charge over time and battery voltage.
 
 Series that split across exporter restarts are merged per UPS.
 
@@ -26,6 +26,6 @@ Series that split across exporter restarts are merged per UPS.
 
 ![Power · energy, readings & events](2-power-energy-readings-and-events.png)
 
-### Battery · runtime & charge
+### Battery · record, charge & voltage
 
-![Battery · runtime & charge](3-battery-runtime-and-charge.png)
+![Battery · record, charge & voltage](3-battery-record-charge-and-voltage.png)
