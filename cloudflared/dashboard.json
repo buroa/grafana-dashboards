@@ -462,7 +462,7 @@
     {
       "type": "stat",
       "title": "Relayed",
-      "description": "Bytes the tunnel relayed in the selected range.",
+      "description": "Bytes the tunnel sent in the selected range, approximately: responses to the edge and requests to the origin.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1175,7 +1175,7 @@
         {
           "type": "bargauge",
           "title": "Errors by status code",
-          "description": "Error responses in the range per status code, most frequent first.",
+          "description": "Error responses in the selected range per status code, most frequent first.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -1212,10 +1212,6 @@
                   {
                     "color": "#8a8a8a",
                     "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 0
                   }
                 ]
               },
@@ -2215,9 +2211,9 @@
           "uid": "${datasource}"
         },
         "definition": "label_values(cloudflared_tunnel_ha_connections, job)",
-        "hide": 2,
+        "hide": 0,
         "includeAll": true,
-        "label": "Job",
+        "label": "Tunnel",
         "multi": true,
         "name": "job",
         "options": [],
