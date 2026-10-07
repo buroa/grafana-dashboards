@@ -13,6 +13,7 @@ Grafana dashboards for a home lab, published on [grafana.com](https://grafana.co
 | [Envoy Gateway / Overview](envoy-gateway-overview) | [25869](https://grafana.com/grafana/dashboards/25869) | Envoy proxy metrics, cAdvisor |
 | [Envoy Gateway / Upstream](envoy-gateway-upstream) | [25870](https://grafana.com/grafana/dashboards/25870) | Envoy proxy metrics |
 | [Envoy Gateway / Downstream](envoy-gateway-downstream) | [25871](https://grafana.com/grafana/dashboards/25871) | Envoy proxy metrics |
+| [Gatus / Overview](gatus) | [25874](https://grafana.com/grafana/dashboards/25874) | [Gatus](https://github.com/TwiN/gatus) metrics |
 | [qBittorrent / Overview](qbittorrent) | [25156](https://grafana.com/grafana/dashboards/25156) | [qui](https://github.com/autobrr/qui) metrics |
 | [ZFS / Overview](zfs) | [24987](https://grafana.com/grafana/dashboards/24987) | node-exporter `zfs` collector, smartctl_exporter |
 

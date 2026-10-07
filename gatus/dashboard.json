@@ -1,0 +1,2057 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "13.1.3"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "status-history",
+      "name": "Status history",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "#8a8a8a",
+        "name": "Gatus restart",
+        "expr": "time() - max by (pod) (process_start_time_seconds{job=~\"$job\"}) < 60",
+        "step": "1m",
+        "titleFormat": "Gatus {{pod}} started",
+        "textFormat": "",
+        "useValueForTime": false,
+        "filter": {
+          "exclude": false,
+          "ids": [
+            7,
+            9,
+            12,
+            13,
+            14,
+            17,
+            18
+          ]
+        }
+      }
+    ]
+  },
+  "description": "Gatus: endpoint status, uptime, outages and response times. Collapsed rows hold ongoing outages, failures per hour, response time, status codes, certificate and domain expiry, and runtime cost.",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Status",
+      "description": "Whether every endpoint's latest check passed: DEGRADED when some fail, DOWN when all do, OFFLINE when Gatus is unreachable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 1,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "avg(gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}) or (max(up{job=~\"$job\"}) == 0) - 1",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.0001
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1,
+                "to": -1,
+                "result": {
+                  "text": "OFFLINE",
+                  "color": "red",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0,
+                "to": 0,
+                "result": {
+                  "text": "DOWN",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0.0001,
+                "to": 0.9999,
+                "result": {
+                  "text": "DEGRADED",
+                  "color": "yellow",
+                  "index": 2
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 1,
+                "to": 1,
+                "result": {
+                  "text": "UP",
+                  "color": "green",
+                  "index": 3
+                }
+              }
+            }
+          ],
+          "noValue": "NO DATA"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "description": "Average endpoint uptime in the selected range: each endpoint's share of passing checks.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 2,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "avg((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"true\"}[$__range])) or (sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range])) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"} offset $__range) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) * 0))) * 0) / ((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"true\"}[$__range])) or (sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range])) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"} offset $__range) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) * 0))) * 0) + ((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range])) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"} offset $__range) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) * 0))) or sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"true\"}[$__range])) * 0)))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.99
+              },
+              {
+                "color": "green",
+                "value": 0.999
+              }
+            ]
+          },
+          "unit": "percentunit",
+          "mappings": [],
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Outages",
+      "description": "Times an endpoint went from passing to failing in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 3,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(resets(gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__range]))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Failures",
+      "description": "Checks that failed in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 4,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range])) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"} offset $__range) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) * 0)))) or vector(0)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Slowest",
+      "description": "Mean response time of the slowest endpoint's passing checks in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 5,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "max(sum by (key, group, name) (sum_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])) / sum by (key, group, name) (count_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])))",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "unit": "s",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Certificate",
+      "description": "Days until the soonest TLS certificate expires.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 6,
+      "gridPos": {
+        "w": 4,
+        "h": 4,
+        "x": 20,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "min(gatus_results_certificate_expiration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}) / 86400",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 7
+              },
+              {
+                "color": "green",
+                "value": 14
+              }
+            ]
+          },
+          "unit": "suffix: days",
+          "mappings": [],
+          "decimals": 0,
+          "noValue": "None"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 30
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Availability",
+      "collapsed": false,
+      "id": 19,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 4
+      },
+      "panels": []
+    },
+    {
+      "type": "status-history",
+      "id": 7,
+      "title": "Uptime by endpoint per hour",
+      "description": "Share of checks that passed each hour; red means most failed.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "interval": "1h",
+      "maxDataPoints": 400,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.5
+              },
+              {
+                "color": "yellow",
+                "value": 0.95
+              },
+              {
+                "color": "green",
+                "value": 0.999
+              }
+            ]
+          },
+          "custom": {
+            "fillOpacity": 90,
+            "lineWidth": 0,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colWidth": 0.92,
+        "rowHeight": 0.82,
+        "showValue": "never",
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(label_join((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"true\"}[$__interval] offset -$__interval)) or (sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0))) * 0) / ((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"true\"}[$__interval] offset -$__interval)) or (sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0))) * 0) + ((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0))) or sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"true\"}[$__interval] offset -$__interval)) * 0)), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\")",
+          "legendFormat": "{{endpoint_name}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "w": 16,
+        "h": 11,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Failures by endpoint",
+      "description": "Endpoints with the most failed checks in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 8,
+      "gridPos": {
+        "w": 8,
+        "h": 11,
+        "x": 16,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sort_desc(topk(10, label_replace(label_join((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range])) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"} offset $__range) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__range]) * 0))), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\") > 0))",
+          "legendFormat": "{{endpoint_name}}",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8a8a8a",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short",
+          "min": 0,
+          "mappings": [],
+          "decimals": 0,
+          "displayName": "${__field.labels.endpoint_name}",
+          "noValue": "No failures",
+          "links": [
+            {
+              "title": "Show ${__field.labels.name}",
+              "url": "/d/gatus-overview?${__url_time_range}&${datasource:queryparam}&var-group=${__field.labels.group}&var-endpoint=${__field.labels.name}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 24,
+        "minVizHeight": 24,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "valueMode": "color",
+        "text": {
+          "valueSize": 18
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Responses",
+      "collapsed": false,
+      "id": 20,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 16
+      },
+      "panels": []
+    },
+    {
+      "type": "status-history",
+      "id": 9,
+      "title": "Response time by endpoint per hour",
+      "description": "Mean response time of passing checks each hour: dim under 100 ms, blue under 1 s, bright above.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "interval": "1h",
+      "maxDataPoints": 400,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#233b61",
+                "value": null
+              },
+              {
+                "color": "#5794F2",
+                "value": 0.1
+              },
+              {
+                "color": "#C0D8FF",
+                "value": 1
+              }
+            ]
+          },
+          "custom": {
+            "fillOpacity": 90,
+            "lineWidth": 0,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colWidth": 0.92,
+        "rowHeight": 0.82,
+        "showValue": "never",
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(label_join(sum by (key, group, name) (sum_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__interval:30s] offset -$__interval)) / sum by (key, group, name) (count_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__interval:30s] offset -$__interval)), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\")",
+          "legendFormat": "{{endpoint_name}}",
+          "range": true,
+          "instant": false,
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "w": 16,
+        "h": 11,
+        "x": 0,
+        "y": 17
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Response time by endpoint",
+      "description": "Endpoints whose passing checks were slowest on average in the selected range.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "id": 10,
+      "gridPos": {
+        "w": 8,
+        "h": 11,
+        "x": 16,
+        "y": 17
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sort_desc(topk(10, label_replace(label_join(sum by (key, group, name) (sum_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])) / sum by (key, group, name) (count_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\")))",
+          "legendFormat": "{{endpoint_name}}",
+          "range": false,
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s",
+          "min": 0,
+          "mappings": [],
+          "displayName": "${__field.labels.endpoint_name}",
+          "noValue": "No errors",
+          "links": [
+            {
+              "title": "Show ${__field.labels.name}",
+              "url": "/d/gatus-overview?${__url_time_range}&${datasource:queryparam}&var-group=${__field.labels.group}&var-endpoint=${__field.labels.name}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 24,
+        "minVizHeight": 24,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "valueMode": "color",
+        "text": {
+          "valueSize": 18
+        }
+      }
+    },
+    {
+      "type": "row",
+      "title": "Availability \u00b7 ongoing outages & failures per hour",
+      "collapsed": true,
+      "id": 21,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 28
+      },
+      "panels": [
+        {
+          "type": "bargauge",
+          "title": "Ongoing outages",
+          "description": "Endpoints whose latest check failed, and how long since each last passed.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 11,
+          "gridPos": {
+            "w": 8,
+            "h": 8,
+            "x": 0,
+            "y": 29
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sort_desc(label_replace(label_join(time() - (max by (key, group, name) (max_over_time(timestamp(gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[7d:1m])) or min by (key, group, name) (min_over_time(timestamp(gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"})[7d:1m]))) and on (key, group, name) (max by (key, group, name) (gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}) == 0), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\"))",
+              "legendFormat": "{{endpoint_name}}",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8a8a8a",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "s",
+              "min": 0,
+              "mappings": [],
+              "displayName": "${__field.labels.endpoint_name}",
+              "noValue": "All healthy",
+              "links": [
+                {
+                  "title": "Show ${__field.labels.name}",
+                  "url": "/d/gatus-overview?${__url_time_range}&${datasource:queryparam}&var-group=${__field.labels.group}&var-endpoint=${__field.labels.name}"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 24,
+            "minVizHeight": 24,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "manual",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Failures per hour",
+          "description": "Failed checks each hour. Unreachable: no connection was made. Failed: every other failed check.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 12,
+          "gridPos": {
+            "w": 16,
+            "h": 8,
+            "x": 8,
+            "y": 29
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0)))) - (sum(((clamp_min(sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) - (sum by (key, group, name) (increase(gatus_results_connected_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval)) or sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) * 0), 0)) <= (sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0)))) or ((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0))) < (clamp_min(sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) - (sum by (key, group, name) (increase(gatus_results_connected_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval)) or sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) * 0), 0)))) or vector(0)) > 0",
+              "legendFormat": "Failed",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sum(((clamp_min(sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) - (sum by (key, group, name) (increase(gatus_results_connected_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval)) or sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) * 0), 0)) <= (sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0)))) or ((sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval)) + sum by (key, group, name) ((min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) unless gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}) or (min_over_time(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",success=\"false\"}[$__interval] offset -$__interval) * 0))) < (clamp_min(sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) - (sum by (key, group, name) (increase(gatus_results_connected_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval)) or sum by (key, group, name) (increase(gatus_results_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"}[$__interval] offset -$__interval)) * 0), 0)))) > 0",
+              "legendFormat": "Unreachable",
+              "range": true,
+              "instant": false,
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 1,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0,
+              "noValue": "No failures"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Failed"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Unreachable"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Responses \u00b7 response time & status codes",
+      "collapsed": true,
+      "id": 22,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 29
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Response time",
+          "description": "How long each passing check took, one line per endpoint.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 13,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 30
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(label_join(sum by (key, group, name) (sum_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__rate_interval:30s])) / sum by (key, group, name) (count_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__rate_interval:30s])), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\")",
+              "legendFormat": "{{endpoint_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "blue"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0
+              },
+              "unit": "s",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Status codes per hour",
+          "description": "HTTP status and DNS response codes returned by checks each hour.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 14,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 30
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "(sum by (code) (increase(gatus_results_code_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval)) + sum by (code) ((min_over_time(gatus_results_code_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval) unless gatus_results_code_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}) or (min_over_time(gatus_results_code_total{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}[$__interval] offset -$__interval) * 0))) > 0",
+              "legendFormat": "{{code}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 1,
+                "barWidthFactor": 0.8,
+                "drawStyle": "bars",
+                "fillOpacity": 85,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "decimals": 0,
+              "noValue": "No HTTP or DNS checks"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "[A-Z].*"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "2..|NOERROR"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "3.."
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-blue",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "4.."
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "5.."
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Expiry \u00b7 certificates & domains",
+      "collapsed": true,
+      "id": 23,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 30
+      },
+      "panels": [
+        {
+          "type": "bargauge",
+          "title": "Certificate expiry by endpoint",
+          "description": "Days until each TLS certificate expires, soonest first.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 15,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 31
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sort(bottomk(10, label_replace(label_join(max by (key, group, name) (gatus_results_certificate_expiration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\") / 86400))",
+              "legendFormat": "{{endpoint_name}}",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8a8a8a",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": -1000000000.0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 7
+                  },
+                  {
+                    "color": "green",
+                    "value": 14
+                  }
+                ]
+              },
+              "unit": "suffix: days",
+              "min": 0,
+              "mappings": [],
+              "decimals": 0,
+              "displayName": "${__field.labels.endpoint_name}",
+              "noValue": "No certificate checks"
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 24,
+            "minVizHeight": 24,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "manual",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        },
+        {
+          "type": "bargauge",
+          "title": "Domain expiry by endpoint",
+          "description": "Days until each domain registration expires, soonest first.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 16,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 31
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "sort(bottomk(10, label_replace(label_join(max by (key, group, name) (gatus_results_domain_expiration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"}), \"endpoint_name\", \" \u00b7 \", \"group\", \"name\"), \"endpoint_name\", \"$1\", \"endpoint_name\", \" \u00b7 (.+)\") / 86400))",
+              "legendFormat": "{{endpoint_name}}",
+              "range": false,
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8a8a8a",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": -1000000000.0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 7
+                  },
+                  {
+                    "color": "green",
+                    "value": 14
+                  }
+                ]
+              },
+              "unit": "suffix: days",
+              "min": 0,
+              "mappings": [],
+              "decimals": 0,
+              "displayName": "${__field.labels.endpoint_name}",
+              "noValue": "No domain checks"
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 24,
+            "minVizHeight": 24,
+            "minVizWidth": 8,
+            "namePlacement": "left",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "manual",
+            "valueMode": "color",
+            "text": {
+              "valueSize": 18
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Runtime \u00b7 CPU & memory",
+      "collapsed": true,
+      "id": 24,
+      "gridPos": {
+        "w": 24,
+        "h": 1,
+        "x": 0,
+        "y": 31
+      },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "CPU",
+          "description": "CPU per Gatus replica, as a share of one core.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 17,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 0,
+            "y": 32
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (rate(process_cpu_seconds_total{job=~\"$job\"}[$__rate_interval])), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#4fb3bf"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "percentunit",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Memory",
+          "description": "Resident memory per Gatus replica.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "id": 18,
+          "gridPos": {
+            "w": 12,
+            "h": 8,
+            "x": 12,
+            "y": 32
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace(sum by (pod) (process_resident_memory_bytes{job=~\"$job\"}), \"instance_name\", \"$1 \u00b7 $2\", \"pod\", \"(.+)-[a-z0-9]+-([a-z0-9]+)\")",
+              "legendFormat": "{{instance_name}}",
+              "range": true,
+              "instant": false,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "purple"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.8,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "gatus",
+    "uptime",
+    "monitoring",
+    "status"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "${DS_PROMETHEUS}",
+          "value": "${DS_PROMETHEUS}"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(gatus_results_total, job)",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Job",
+        "multi": true,
+        "name": "job",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(gatus_results_total, job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(gatus_results_total{job=~\"$job\"}, group)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Group",
+        "multi": true,
+        "name": "group",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(gatus_results_total{job=~\"$job\"}, group)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "allValue": ".*"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(gatus_results_total{job=~\"$job\",group=~\"$group\"}, name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Endpoint",
+        "multi": true,
+        "name": "endpoint",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(gatus_results_total{job=~\"$job\",group=~\"$group\"}, name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query",
+        "allValue": ".*"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Gatus / Overview",
+  "uid": "gatus-overview",
+  "version": 1,
+  "weekStart": "",
+  "gnetId": 25874
+}
