@@ -562,7 +562,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": 1,
             "barWidthFactor": 0.75,
             "drawStyle": "bars",
             "fillOpacity": 85,
@@ -690,7 +690,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (reason_code) (increase(brrpolice_ban_applied_reasons_total{job=~\"$job\",instance=~\"$instance\",policy_name=~\"$policy\"}[$__interval]))",
+          "expr": "sum by (reason_code) (increase(brrpolice_ban_applied_reasons_total{job=~\"$job\",instance=~\"$instance\",policy_name=~\"$policy\"}[$__interval] offset -$__interval))",
           "legendFormat": "{{reason_code}}",
           "range": true,
           "instant": false,
@@ -702,7 +702,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(brrpolice_bans_total{job=~\"$job\",instance=~\"$instance\",result=\"expired\"}[$__interval]))",
+          "expr": "sum(increase(brrpolice_bans_total{job=~\"$job\",instance=~\"$instance\",result=\"expired\"}[$__interval] offset -$__interval))",
           "legendFormat": "Expired",
           "range": true,
           "instant": false,
@@ -1012,7 +1012,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_fraction(-Inf, $clear_threshold, sum by (le) (increase(brrpolice_score_value_bucket{job=~\"$job\",instance=~\"$instance\"}[$__interval])))",
+          "expr": "histogram_fraction(-Inf, $clear_threshold, sum by (le) (increase(brrpolice_score_value_bucket{job=~\"$job\",instance=~\"$instance\"}[$__interval] offset -$__interval)))",
           "legendFormat": "Healthy",
           "range": true,
           "instant": false,
@@ -1024,7 +1024,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_fraction($clear_threshold, $ban_threshold, sum by (le) (increase(brrpolice_score_value_bucket{job=~\"$job\",instance=~\"$instance\"}[$__interval])))",
+          "expr": "histogram_fraction($clear_threshold, $ban_threshold, sum by (le) (increase(brrpolice_score_value_bucket{job=~\"$job\",instance=~\"$instance\"}[$__interval] offset -$__interval)))",
           "legendFormat": "Watch",
           "range": true,
           "instant": false,
@@ -1036,7 +1036,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_fraction($ban_threshold, +Inf, sum by (le) (increase(brrpolice_score_value_bucket{job=~\"$job\",instance=~\"$instance\"}[$__interval])))",
+          "expr": "histogram_fraction($ban_threshold, +Inf, sum by (le) (increase(brrpolice_score_value_bucket{job=~\"$job\",instance=~\"$instance\"}[$__interval] offset -$__interval)))",
           "legendFormat": "Over ban threshold",
           "range": true,
           "instant": false,
@@ -1633,7 +1633,7 @@
                 "axisColorMode": "text",
                 "axisLabel": "",
                 "axisPlacement": "auto",
-                "barAlignment": 0,
+                "barAlignment": 1,
                 "barWidthFactor": 0.6,
                 "drawStyle": "bars",
                 "fillOpacity": 85,
@@ -1759,7 +1759,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(brrpolice_qbittorrent_api_errors_total{job=~\"$job\",instance=~\"$instance\"}[$__interval])) > 0",
+              "expr": "sum(increase(brrpolice_qbittorrent_api_errors_total{job=~\"$job\",instance=~\"$instance\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "qBittorrent API",
               "range": true,
               "instant": false,
@@ -1771,7 +1771,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(brrpolice_bans_total{job=~\"$job\",instance=~\"$instance\",result=\"failed\"}[$__interval])) > 0",
+              "expr": "sum(increase(brrpolice_bans_total{job=~\"$job\",instance=~\"$instance\",result=\"failed\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "Failed bans",
               "range": true,
               "instant": false,
@@ -1783,7 +1783,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(brrpolice_prune_runs_total{job=~\"$job\",instance=~\"$instance\",result=\"failure\"}[$__interval])) > 0",
+              "expr": "sum(increase(brrpolice_prune_runs_total{job=~\"$job\",instance=~\"$instance\",result=\"failure\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "Failed prunes",
               "range": true,
               "instant": false,
@@ -1795,7 +1795,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(brrpolice_metrics_encode_errors_total{job=~\"$job\",instance=~\"$instance\"}[$__interval])) > 0",
+              "expr": "sum(increase(brrpolice_metrics_encode_errors_total{job=~\"$job\",instance=~\"$instance\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "Metrics encoding",
               "range": true,
               "instant": false,
@@ -1944,7 +1944,7 @@
                 "axisColorMode": "text",
                 "axisLabel": "",
                 "axisPlacement": "auto",
-                "barAlignment": 0,
+                "barAlignment": 1,
                 "barWidthFactor": 0.6,
                 "drawStyle": "bars",
                 "fillOpacity": 85,
@@ -2066,7 +2066,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum by (table) (increase(brrpolice_pruned_rows_total{job=~\"$job\",instance=~\"$instance\"}[$__interval])) > 0",
+              "expr": "sum by (table) (increase(brrpolice_pruned_rows_total{job=~\"$job\",instance=~\"$instance\"}[$__interval] offset -$__interval)) > 0",
               "legendFormat": "{{table}}",
               "range": true,
               "instant": false,
