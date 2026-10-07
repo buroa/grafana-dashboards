@@ -14,6 +14,7 @@ The collapsed **Runtime · API latency, errors, database & pruning** row holds q
 
 ## Requirements
 - brrpolice metrics (`brrpolice_*`) scraped by Prometheus.
+- Prometheus 2.33 or later, for negative offsets.
 - `ban_threshold` and `clear_threshold` variables should match your brrpolice config.
 
 ## Collapsed rows

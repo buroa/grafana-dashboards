@@ -19,6 +19,7 @@ Note: release counts come from autobrr's database, so release cleanup jobs don't
 
 ## Requirements
 - autobrr with metrics enabled (`metricsEnabled = true` or `AUTOBRR__METRICS_ENABLED=true`, port 9074) scraped by Prometheus.
+- Prometheus 2.33 or later, for negative offsets.
 - The `network` variable filters the per-network panels.
 
 ## Collapsed rows

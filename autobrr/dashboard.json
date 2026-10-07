@@ -620,7 +620,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": 1,
             "barWidthFactor": 0.75,
             "drawStyle": "bars",
             "fillOpacity": 85,
@@ -737,7 +737,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m]))",
+          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
           "legendFormat": "Grabbed",
           "range": true,
           "instant": false,
@@ -749,7 +749,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m]))",
+          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
           "legendFormat": "Rejected",
           "range": true,
           "instant": false,
@@ -761,7 +761,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_error_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_error_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m]))",
+          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_error_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_error_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
           "legendFormat": "Errors",
           "range": true,
           "instant": false,
@@ -797,7 +797,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": 1,
             "barWidthFactor": 0.75,
             "drawStyle": "bars",
             "fillOpacity": 85,
@@ -860,7 +860,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m]))",
+          "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
           "legendFormat": "Grabbed",
           "range": true,
           "instant": false,
@@ -969,7 +969,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (network) (sum_over_time((max by (job, network) (autobrr_irc_channel_last_announced_timestamp_seconds{job=~\"$job\",instance=~\"$instance\",network=~\"$network\"}) > bool max by (job, network) (autobrr_irc_channel_last_announced_timestamp_seconds{job=~\"$job\",instance=~\"$instance\",network=~\"$network\"} offset 1m))[$__interval:1m])) or (sum by (network) (max by (job, network) (autobrr_irc_channel_enabled_total{job=~\"$job\",instance=~\"$instance\",network=~\"$network\"})) > 0) * 0",
+          "expr": "sum by (network) (sum_over_time((max by (job, network) (autobrr_irc_channel_last_announced_timestamp_seconds{job=~\"$job\",instance=~\"$instance\",network=~\"$network\"}) > bool max by (job, network) (autobrr_irc_channel_last_announced_timestamp_seconds{job=~\"$job\",instance=~\"$instance\",network=~\"$network\"} offset 1m))[$__interval:1m] offset -$__interval)) or (sum by (network) (max by (job, network) (autobrr_irc_channel_enabled_total{job=~\"$job\",instance=~\"$instance\",network=~\"$network\"})) > 0) * 0",
           "legendFormat": "{{network}}",
           "range": true,
           "instant": false,

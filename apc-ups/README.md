@@ -18,6 +18,7 @@ Series that split across exporter restarts are merged per UPS.
 
 ## Requirements
 - Prometheus `snmp_exporter` with the `apcups` module, scraping an APC UPS with a Network Management Card.
+- Prometheus 2.33 or later, for negative offsets.
 
 ## Collapsed rows
 

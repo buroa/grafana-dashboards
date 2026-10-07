@@ -1382,7 +1382,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "increase((max by (instance) (upsHighPrecOutputEnergyUsage{instance=~\"$ups\"}))[$__interval:1m])",
+              "expr": "increase((max by (instance) (upsHighPrecOutputEnergyUsage{instance=~\"$ups\"}))[$__interval:1m] offset -$__interval)",
               "legendFormat": "Energy",
               "range": true,
               "instant": false,
@@ -1401,7 +1401,7 @@
                 "axisColorMode": "text",
                 "axisLabel": "",
                 "axisPlacement": "auto",
-                "barAlignment": 0,
+                "barAlignment": 1,
                 "barWidthFactor": 0.8,
                 "drawStyle": "bars",
                 "fillOpacity": 85,

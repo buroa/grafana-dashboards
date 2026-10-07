@@ -634,7 +634,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\",status_code=~\"[1-3]..\"}[$__interval]))",
+          "expr": "sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\",status_code=~\"[1-3]..\"}[$__interval] offset -$__interval))",
           "legendFormat": "Completed",
           "range": true,
           "instant": false,
@@ -646,7 +646,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "clamp_min(sum(increase(cloudflared_tunnel_total_requests{job=~\"$job\"}[$__interval])) - sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\"}[$__interval])) - sum(increase(cloudflared_tunnel_request_errors{job=~\"$job\"}[$__interval])), 0)",
+          "expr": "clamp_min(sum(increase(cloudflared_tunnel_total_requests{job=~\"$job\"}[$__interval] offset -$__interval)) - sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\"}[$__interval] offset -$__interval)) - sum(increase(cloudflared_tunnel_request_errors{job=~\"$job\"}[$__interval] offset -$__interval)), 0)",
           "legendFormat": "WebSocket and other",
           "range": true,
           "instant": false,
@@ -658,7 +658,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(cloudflared_tunnel_request_errors{job=~\"$job\"}[$__interval]))",
+          "expr": "sum(increase(cloudflared_tunnel_request_errors{job=~\"$job\"}[$__interval] offset -$__interval))",
           "legendFormat": "Cancelled",
           "range": true,
           "instant": false,
@@ -670,7 +670,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\",status_code=~\"4..\"}[$__interval]))",
+          "expr": "sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\",status_code=~\"4..\"}[$__interval] offset -$__interval))",
           "legendFormat": "Client errors (4xx)",
           "range": true,
           "instant": false,
@@ -682,7 +682,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\",status_code=~\"5..\"}[$__interval]))",
+          "expr": "sum(increase(cloudflared_tunnel_response_by_code{job=~\"$job\",status_code=~\"5..\"}[$__interval] offset -$__interval))",
           "legendFormat": "Server errors (5xx)",
           "range": true,
           "instant": false,
@@ -700,7 +700,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": 1,
             "barWidthFactor": 0.8,
             "drawStyle": "bars",
             "fillOpacity": 85,
@@ -2020,7 +2020,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(cloudflared_rpc_client_operations{job=~\"$job\"}[$__interval]))",
+              "expr": "sum(increase(cloudflared_rpc_client_operations{job=~\"$job\"}[$__interval] offset -$__interval))",
               "legendFormat": "Calls",
               "range": true,
               "instant": false,
@@ -2032,7 +2032,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "(sum(increase(cloudflared_rpc_client_failures{job=~\"$job\"}[$__interval])) or vector(0)) + (sum(increase(cloudflared_config_local_config_pushes_errors{job=~\"$job\"}[$__interval])) or vector(0))",
+              "expr": "(sum(increase(cloudflared_rpc_client_failures{job=~\"$job\"}[$__interval] offset -$__interval)) or vector(0)) + (sum(increase(cloudflared_config_local_config_pushes_errors{job=~\"$job\"}[$__interval] offset -$__interval)) or vector(0))",
               "legendFormat": "Failed",
               "range": true,
               "instant": false,
@@ -2050,7 +2050,7 @@
                 "axisColorMode": "text",
                 "axisLabel": "",
                 "axisPlacement": "auto",
-                "barAlignment": 0,
+                "barAlignment": 1,
                 "barWidthFactor": 0.8,
                 "drawStyle": "bars",
                 "fillOpacity": 85,

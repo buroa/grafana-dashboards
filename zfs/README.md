@@ -19,6 +19,7 @@ Each collapsed row holds the detail for its topic:
 
 ## Requirements
 - node-exporter with the `zfs` collector (`node_zfs_*`) plus the standard `node_disk_*` and `node_filesystem_*` collectors.
+- Prometheus 2.33 or later, for negative offsets.
 - Optional: smartctl_exporter for the SMART panels.
 
 ## Collapsed rows

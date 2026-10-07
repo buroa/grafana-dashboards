@@ -18,6 +18,7 @@ Note: cancelled requests are usually visitors closing the page or seeking in med
 
 ## Requirements
 - cloudflared started with `--metrics` and scraped by Prometheus (`cloudflared_*`, `quic_client_*`, plus the standard `process_*` and `go_*` collectors).
+- Prometheus 2.33 or later, for negative offsets.
 - A `job` label to pick the tunnel.
 
 ## Collapsed rows

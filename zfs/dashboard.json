@@ -4431,7 +4431,7 @@
                 "axisColorMode": "text",
                 "axisLabel": "",
                 "axisPlacement": "auto",
-                "barAlignment": 0,
+                "barAlignment": 1,
                 "barWidthFactor": 0.8,
                 "drawStyle": "bars",
                 "fillOpacity": 85,
@@ -4526,7 +4526,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__interval]))",
+              "expr": "sum(increase(node_zfs_arc_l2_hits{instance=\"$instance\"}[$__interval] offset -$__interval))",
               "legendFormat": "Hits",
               "range": true,
               "instant": false,
@@ -4538,7 +4538,7 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(increase(node_zfs_arc_l2_misses{instance=\"$instance\"}[$__interval]))",
+              "expr": "sum(increase(node_zfs_arc_l2_misses{instance=\"$instance\"}[$__interval] offset -$__interval))",
               "legendFormat": "Misses",
               "range": true,
               "instant": false,
