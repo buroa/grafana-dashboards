@@ -713,7 +713,7 @@
       "id": 8,
       "gridPos": {
         "h": 8,
-        "w": 14,
+        "w": 12,
         "x": 0,
         "y": 5
       }
@@ -782,7 +782,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"64.0\"}[$__range]))",
-          "legendFormat": "Under 1 min",
+          "legendFormat": "Up to 64 s",
           "range": false,
           "instant": true,
           "refId": "A"
@@ -794,7 +794,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"128.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"64.0\"}[$__range]))",
-          "legendFormat": "1-2 min",
+          "legendFormat": "64-128 s",
           "range": false,
           "instant": true,
           "refId": "B"
@@ -806,7 +806,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"256.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"128.0\"}[$__range]))",
-          "legendFormat": "2-4 min",
+          "legendFormat": "128-256 s",
           "range": false,
           "instant": true,
           "refId": "C"
@@ -818,7 +818,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"512.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"256.0\"}[$__range]))",
-          "legendFormat": "4-9 min",
+          "legendFormat": "256-512 s",
           "range": false,
           "instant": true,
           "refId": "D"
@@ -830,7 +830,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"1024.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"512.0\"}[$__range]))",
-          "legendFormat": "9-17 min",
+          "legendFormat": "512-1024 s",
           "range": false,
           "instant": true,
           "refId": "E"
@@ -842,7 +842,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"2048.0\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"1024.0\"}[$__range]))",
-          "legendFormat": "17-34 min",
+          "legendFormat": "1024-2048 s",
           "range": false,
           "instant": true,
           "refId": "F"
@@ -854,7 +854,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"+Inf\"}[$__range])) - sum(increase(brrpolice_bad_time_before_ban_seconds_bucket{job=~\"$job\",instance=~\"$instance\",le=\"2048.0\"}[$__range]))",
-          "legendFormat": "34 min+",
+          "legendFormat": "Over 2048 s",
           "range": false,
           "instant": true,
           "refId": "G"
@@ -863,8 +863,8 @@
       "id": 9,
       "gridPos": {
         "h": 8,
-        "w": 10,
-        "x": 14,
+        "w": 12,
+        "x": 12,
         "y": 5
       }
     },
