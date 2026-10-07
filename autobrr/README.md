@@ -8,9 +8,10 @@ autobrr: IRC status, announces by network, and releases matched, grabbed and rej
 
 ## Overview
 
-Built on the Prometheus metrics exported by [autobrr](https://github.com/autobrr/autobrr). The top row shows IRC status, the last announce, releases matched, releases grabbed, push errors and the grab rate in the selected range. Below it, pushes per hour by outcome, grabs per day, announce activity by network per hour and the last announce by network.
+Built on the Prometheus metrics exported by [autobrr](https://github.com/autobrr/autobrr). The top row shows IRC status, the last announce, releases matched, releases grabbed, push errors and the grab rate in the selected range. Below it, grabs and errors per hour, grabs per day, announce activity by network per hour and the last announce by network.
 
 Collapsed rows:
+- **Releases · pushes by outcome:** pushes per hour: grabbed, rejected or failed with an error.
 - **Announces · network outages:** IRC networks down over time and downtime by network.
 - **Runtime · CPU, memory & goroutines:** autobrr CPU, memory and goroutines.
 - **Setup · version, filters, feeds & lists:** version, uptime, enabled filters, networks, feeds and lists, and when each feed and list last ran.
@@ -24,14 +25,18 @@ Note: release counts come from autobrr's database, so release cleanup jobs don't
 
 ## Collapsed rows
 
+### Releases · pushes by outcome
+
+![Releases · pushes by outcome](2-releases-pushes-by-outcome.png)
+
 ### Announces · network outages
 
-![Announces · network outages](2-announces-network-outages.png)
+![Announces · network outages](3-announces-network-outages.png)
 
 ### Runtime · CPU, memory & goroutines
 
-![Runtime · CPU, memory & goroutines](3-runtime-cpu-memory-and-goroutines.png)
+![Runtime · CPU, memory & goroutines](4-runtime-cpu-memory-and-goroutines.png)
 
 ### Setup · version, filters, feeds & lists
 
-![Setup · version, filters, feeds & lists](4-setup-version-filters-feeds-and-lists.png)
+![Setup · version, filters, feeds & lists](5-setup-version-filters-feeds-and-lists.png)
