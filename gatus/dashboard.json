@@ -457,8 +457,8 @@
     },
     {
       "type": "stat",
-      "title": "Slowest",
-      "description": "Mean response time of the slowest endpoint's passing checks in the selected range.",
+      "title": "Typical response",
+      "description": "Median of the endpoints' mean response times for passing checks in the selected range.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -477,7 +477,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max(sum by (key, group, name) (sum_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])) / sum by (key, group, name) (count_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])))",
+          "expr": "quantile(0.5, sum by (key, group, name) (sum_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])) / sum by (key, group, name) (count_over_time((gatus_results_duration_seconds{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\",type!=\"UNKNOWN\"} and gatus_results_endpoint_success{job=~\"$job\",group=~\"$group\",name=~\"$endpoint\"} == 1)[$__range:30s])))",
           "legendFormat": "",
           "range": false,
           "instant": true,
@@ -498,11 +498,11 @@
               },
               {
                 "color": "yellow",
-                "value": 1
+                "value": 0.5
               },
               {
                 "color": "red",
-                "value": 3
+                "value": 2
               }
             ]
           },
@@ -820,7 +820,7 @@
       "type": "status-history",
       "id": 9,
       "title": "Response time by endpoint per hour",
-      "description": "Mean response time of passing checks each hour: dim under 100 ms, blue under 1 s, bright above.",
+      "description": "Mean response time of passing checks each hour; brighter is slower. Steps at 25, 100, 250 ms and 1 s.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -837,12 +837,20 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#233b61",
+                "color": "#1c3458",
                 "value": null
               },
               {
-                "color": "#5794F2",
+                "color": "#2c5b9c",
+                "value": 0.025
+              },
+              {
+                "color": "#4c8be3",
                 "value": 0.1
+              },
+              {
+                "color": "#9cc4ff",
+                "value": 0.25
               },
               {
                 "color": "#C0D8FF",

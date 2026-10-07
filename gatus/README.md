@@ -8,7 +8,7 @@ Gatus: endpoint status, uptime, outages and response times.
 
 ## Overview
 
-Built on the Prometheus metrics exported by [Gatus](https://github.com/TwiN/gatus). The top row shows whether every endpoint's latest check passed, then uptime, outages, failed checks, the slowest endpoint's response time and days until the soonest certificate expires. Below it, uptime by endpoint per hour beside failures by endpoint, and response time by endpoint per hour beside the slowest endpoints.
+Built on the Prometheus metrics exported by [Gatus](https://github.com/TwiN/gatus). The top row shows whether every endpoint's latest check passed, then uptime, outages, failed checks, the typical endpoint response time and days until the soonest certificate expires. Below it, uptime by endpoint per hour beside failures by endpoint, and response time by endpoint per hour beside the slowest endpoints.
 
 Collapsed rows:
 - **Availability · ongoing outages & failures per hour:** endpoints failing now and for how long, and failed checks per hour split into unreachable and other failures.
