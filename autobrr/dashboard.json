@@ -95,7 +95,7 @@
       }
     ]
   },
-  "description": "autobrr: IRC status, announces by network, and releases matched, grabbed and rejected. The collapsed rows hold pushes by outcome, network outages, runtime and setup.",
+  "description": "autobrr: IRC status, announces by network, and releases matched, grabbed and rejected. The collapsed rows hold rejected pushes, network outages, runtime and setup.",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -1061,8 +1061,8 @@
       "panels": [
         {
           "type": "timeseries",
-          "title": "Pushes per hour",
-          "description": "Pushes each hour by outcome: grabbed, rejected by the arr or the action's checks, or failed with an error.",
+          "title": "Rejections per hour",
+          "description": "Pushes each hour that the arr or the action's checks rejected, usually releases it already has.",
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
@@ -1121,21 +1121,6 @@
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "Grabbed"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "blue",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
                   "options": "Rejected"
                 },
                 "properties": [
@@ -1143,25 +1128,6 @@
                     "id": "color",
                     "value": {
                       "fixedColor": "#8a8a8a",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.lineWidth",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Errors"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "red",
                       "mode": "fixed"
                     }
                   },
@@ -1195,35 +1161,11 @@
                 "uid": "${datasource}"
               },
               "editorMode": "code",
-              "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_approved_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
-              "legendFormat": "Grabbed",
-              "range": true,
-              "instant": false,
-              "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "editorMode": "code",
               "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_rejected_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
               "legendFormat": "Rejected",
               "range": true,
               "instant": false,
               "refId": "B"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "editorMode": "code",
-              "expr": "sum(sum_over_time((clamp_min(max by (job) (autobrr_release_push_error_total{job=~\"$job\",instance=~\"$instance\"}) - max by (job) (autobrr_release_push_error_total{job=~\"$job\",instance=~\"$instance\"} offset 1m), 0))[$__interval:1m] offset -$__interval))",
-              "legendFormat": "Errors",
-              "range": true,
-              "instant": false,
-              "refId": "C"
             }
           ],
           "interval": "1h",
@@ -1236,7 +1178,7 @@
           }
         }
       ],
-      "title": "Releases \u00b7 pushes by outcome",
+      "title": "Releases \u00b7 rejected pushes",
       "type": "row"
     },
     {

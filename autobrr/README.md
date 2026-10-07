@@ -11,7 +11,7 @@ autobrr: IRC status, announces by network, and releases matched, grabbed and rej
 Built on the Prometheus metrics exported by [autobrr](https://github.com/autobrr/autobrr). The top row shows IRC status, the last announce, releases matched, releases grabbed, push errors and the grab rate in the selected range. Below it, grabs and errors per hour, grabs per day, announce activity by network per hour and the last announce by network.
 
 Collapsed rows:
-- **Releases · pushes by outcome:** pushes per hour: grabbed, rejected or failed with an error.
+- **Releases · rejected pushes:** pushes per hour that the arr or the action's checks rejected.
 - **Announces · network outages:** IRC networks down over time and downtime by network.
 - **Runtime · CPU, memory & goroutines:** autobrr CPU, memory and goroutines.
 - **Setup · version, filters, feeds & lists:** version, uptime, enabled filters, networks, feeds and lists, and when each feed and list last ran.
@@ -25,9 +25,9 @@ Note: release counts come from autobrr's database, so release cleanup jobs don't
 
 ## Collapsed rows
 
-### Releases · pushes by outcome
+### Releases · rejected pushes
 
-![Releases · pushes by outcome](2-releases-pushes-by-outcome.png)
+![Releases · rejected pushes](2-releases-rejected-pushes.png)
 
 ### Announces · network outages
 
