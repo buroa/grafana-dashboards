@@ -10,6 +10,7 @@ Grafana dashboards for a home lab, published on [grafana.com](https://grafana.co
 | [autobrr / Overview](autobrr) | [25872](https://grafana.com/grafana/dashboards/25872) | [autobrr](https://github.com/autobrr/autobrr) metrics |
 | [brrpolice / Overview](brrpolice) | [25155](https://grafana.com/grafana/dashboards/25155) | [brrpolice](https://github.com/zariel/brrpolice) metrics |
 | [cloudflared / Overview](cloudflared) | [25868](https://grafana.com/grafana/dashboards/25868) | cloudflared `--metrics` endpoint |
+| [CrowdSec / Overview](crowdsec) | [25948](https://grafana.com/grafana/dashboards/25948) | [CrowdSec](https://github.com/crowdsecurity/crowdsec) and [envoy-proxy-bouncer](https://github.com/kdwils/envoy-proxy-bouncer) metrics |
 | [Envoy Gateway / Overview](envoy-gateway-overview) | [25869](https://grafana.com/grafana/dashboards/25869) | Envoy proxy metrics, cAdvisor |
 | [Envoy Gateway / Upstream](envoy-gateway-upstream) | [25870](https://grafana.com/grafana/dashboards/25870) | Envoy proxy metrics |
 | [Envoy Gateway / Downstream](envoy-gateway-downstream) | [25871](https://grafana.com/grafana/dashboards/25871) | Envoy proxy metrics |
